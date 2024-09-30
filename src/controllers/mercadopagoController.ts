@@ -15,3 +15,13 @@ export const createPaymentPreference = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Error creating payment preference' });
   }
 };
+
+// export const getPayment = async (req: Request, res: Response, next: NextFunction) => {
+//   try {
+//     const { id } = req.params;
+//     const payment = await mercadoPagoService.getPaymentById(id);
+//     res.json(payment);
+//   } catch (error) {
+//     next(error);
+//   }
+// };

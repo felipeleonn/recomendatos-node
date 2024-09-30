@@ -1,0 +1,14 @@
+   services:
+     app:
+       build: .
+       ports:
+         - "3000:3000"
+       environment:
+         - PORT=3000
+         - MERCADOPAGO_ACCESS_TOKEN=${MERCADOPAGO_ACCESS_TOKEN}
+         - FRONTEND_URL=${FRONTEND_URL}
+         - SUPABASE_URL=${SUPABASE_URL}
+         - SUPABASE_KEY=${SUPABASE_KEY}
+       volumes:
+         - .:/usr/src/app
+         - /usr/src/app/node_modules

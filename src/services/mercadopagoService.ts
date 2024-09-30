@@ -20,7 +20,7 @@ export interface CreatePreferencePayload {
 }
 
 export const createPreference = async (payload: CreatePreferencePayload) => {
-  const client = new MercadoPagoConfig({ accessToken: 'APP_USR-6946186999122893-081718-cfdc035e98fd9381203b64a71dc823ff-1949410279' });
+  const client = new MercadoPagoConfig({ accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!  });
   try {
   const preference = new Preference(client);
   const result = await preference.create({
@@ -44,3 +44,13 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
     throw error;
   }
 };
+
+// export const getPaymentById = async (paymentId: string) => {
+//   try {
+//     const payment = await mercadopago.payment.get(paymentId);
+//     return payment.body;
+//   } catch (error) {
+//     console.error('Error fetching MercadoPago payment:', error);
+//     throw error;
+//   }
+// };
