@@ -23,10 +23,11 @@ export interface CreatePreferencePayload {
   };
 }
 
-export const createPreference = async (payload: CreatePreferencePayload) => {
+export const createPreference = async (payload: CreatePreferencePayload, accessToken: string) => {
   try {
-  const preference = new Preference(mercadopagoClient);
-  const result = await preference.create({
+    const client = new MercadoPagoConfig({ accessToken });
+    const preference = new Preference(client);
+    const result = await preference.create({
       body: {
         items: payload.items.map((item, index) => ({
           id: `item-${index}`,

@@ -6,7 +6,7 @@ import { supabase } from '../services/supabaseService';
 export const createPaymentPreference = async (req: Request, res: Response) => {
   try {
     const payload: CreatePreferencePayload = req.body;
-    const preference = await createPreference(payload);
+    const preference = await createPreference(payload, req.mercadopagoToken!);
     res.json({
       id: preference.id,
       init_point: preference.init_point,
@@ -42,31 +42,31 @@ export const getAuthorizationURL = (req: Request, res: Response) => {
 
 // TODO: Hacer en supabase una tabla de tokens de mercado pago
 
-// export const handleOAuthCallback = async (req: Request, res: Response) => {
-//   try {
-//     const { code } = req.query;
-//     if (typeof code !== 'string') {
-//       throw new Error('Invalid authorization code');
-//     }
-//     const tokenData = await exchangeCodeForToken(code);
+export const handleOAuthCallback = async (req: Request, res: Response) => {
+  try {
+    const { code } = req.query;
+    if (typeof code !== 'string') {
+      throw new Error('Invalid authorization code');
+    }
+    const tokenData = await exchangeCodeForToken(code);
     
-//     const { data, error } = await supabase
-//       .from('mercadopago_tokens')
-//       .upsert({
-//         user_id: req.user.id, // Assuming you have user authentication in place
-//         access_token: tokenData.access_token,
-//         refresh_token: tokenData.refresh_token,
-//         expires_in: tokenData.expires_in,
-//         created_at: new Date().toISOString(),
-//       });
+    const { data, error } = await supabase
+      .from('mercadopago_tokens')
+      .upsert({
+        user_id: req.user!.id,
+        access_token: tokenData.access_token,
+        refresh_token: tokenData.refresh_token,
+        expires_in: tokenData.expires_in,
+        created_at: new Date().toISOString(),
+      });
 
-//     if (error) {
-//       throw error;
-//     }
+    if (error) {
+      throw error;
+    }
 
-//     res.json({ message: 'Authorization successful' });
-//   } catch (error) {
-//     logger.error('Error handling OAuth callback:', error);
-//     res.status(500).json({ error: 'Error processing authorization' });
-//   }
-// };
+    res.json({ message: 'Authorization successful' });
+  } catch (error) {
+    logger.error('Error handling OAuth callback:', error);
+    res.status(500).json({ error: 'Error processing authorization' });
+  }
+};
