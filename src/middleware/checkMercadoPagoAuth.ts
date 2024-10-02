@@ -5,10 +5,8 @@ import { logger } from '../utils/logger';
 
 export const checkMercadoPagoAuth = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Assuming you have user authentication in place
     const userId = req.user!.id;
 
-    // Fetch the user's MercadoPago token from the database
     const { data: tokenData, error } = await supabase
       .from('mercadopago_tokens')
       .select('*')
@@ -19,16 +17,16 @@ export const checkMercadoPagoAuth = async (req: Request, res: Response, next: Ne
       return res.status(401).json({ error: 'MercadoPago authorization required' });
     }
 
-    // Check if the token is expired
+    // Chequiamos si el token esta vencido
     const now = new Date();
     const tokenExpiration = new Date(tokenData.created_at);
     tokenExpiration.setSeconds(tokenExpiration.getSeconds() + tokenData.expires_in);
 
     if (now > tokenExpiration) {
-      // Token is expired, refresh it
+      // Si esta expirado, lo renovamos
       const newTokenData = await refreshAccessToken(tokenData.refresh_token);
 
-      // Update the token in the database
+      // Actualizamos el token en la base de datos
       const { error: updateError } = await supabase
         .from('mercadopago_tokens')
         .update({
@@ -43,10 +41,10 @@ export const checkMercadoPagoAuth = async (req: Request, res: Response, next: Ne
         throw updateError;
       }
 
-      // Set the new access token for use in the request
+      // Setiar el nuevo token en el request
       req.mercadopagoToken = newTokenData.access_token;
     } else {
-      // Token is still valid
+      // El token es valido
       req.mercadopagoToken = tokenData.access_token;
     }
 
