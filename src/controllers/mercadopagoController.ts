@@ -3,10 +3,10 @@ import { createPreference, CreatePreferencePayload, exchangeCodeForToken, genera
 import { logger } from '../utils/logger';
 import { supabase } from '../services/supabaseService';
 
-export const getAuthorizationURL = (req: Request, res: Response) => {
-  const authUrl = generateAuthorizationURL();
-  res.json({ authorizationUrl: authUrl });
-};
+// export const getAuthorizationURL = (req: Request, res: Response) => {
+//   const authUrl = generateAuthorizationURL();
+//   res.json({ authorizationUrl: authUrl });
+// };
 
 export const initiateAuthorization = (req: Request, res: Response) => {
   const authUrl = generateAuthorizationURL();
@@ -25,7 +25,7 @@ export const handleOAuthCallback = async (req: Request, res: Response) => {
     const { data, error } = await supabase
       .from('mercadopago_tokens')
       .upsert({
-        user_id: req.user!.id,
+        clerk_id: req.user!.id,
         access_token: tokenData.access_token,
         refresh_token: tokenData.refresh_token,
         expires_in: tokenData.expires_in,

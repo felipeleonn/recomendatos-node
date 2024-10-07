@@ -20,16 +20,16 @@ export interface CreatePreferencePayload {
   payer: {
     email: string;
   };
+  orderId: string; 
 }
-
 
 export const generateAuthorizationURL = () => {
   const baseUrl = 'https://auth.mercadopago.com.ar/authorization';
   const params = new URLSearchParams({
-    client_id: CLIENT_ID,
+    client_id: CLIENT_ID, // TODO: Mover esto a una variable de entorno
     response_type: 'code',
     platform_id: 'mp',
-    redirect_uri: REDIRECT_URI,
+    redirect_uri: REDIRECT_URI, // TODO: Mover esto a una variable de entorno
   });
   return `${baseUrl}?${params.toString()}`;
 };
@@ -37,8 +37,8 @@ export const generateAuthorizationURL = () => {
 export const exchangeCodeForToken = async (code: string) => {
   try {
     const response = await axios.post('https://api.mercadopago.com/oauth/token', {
-      client_secret: CLIENT_SECRET,
-      client_id: CLIENT_ID,
+      client_secret: CLIENT_SECRET, // TODO: Mover esto a una variable de entorno
+      client_id: CLIENT_ID, // TODO: Mover esto a una variable de entorno
       grant_type: 'authorization_code',
       code: code,
       redirect_uri: REDIRECT_URI,
@@ -53,8 +53,8 @@ export const exchangeCodeForToken = async (code: string) => {
 export const refreshAccessToken = async (refreshToken: string) => {
   try {
     const response = await axios.post('https://api.mercadopago.com/oauth/token', {
-      client_secret: CLIENT_SECRET,
-      client_id: CLIENT_ID,
+      client_secret: CLIENT_SECRET, // TODO: Mover esto a una variable de entorno
+      client_id: CLIENT_ID, // TODO: Mover esto a una variable de entorno
       grant_type: 'refresh_token',
       refresh_token: refreshToken,
     });
@@ -81,6 +81,8 @@ export const createPreference = async (payload: CreatePreferencePayload, accessT
           pending: `${process.env.FRONTEND_URL}/pending`,
         },
         auto_return: 'approved',
+        external_reference: payload.orderId,
+        notification_url: `${process.env.BACKEND_URL}/api/mercadopago/webhook`,
       },
     });
     return result;
