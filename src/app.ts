@@ -10,13 +10,9 @@ import { logger } from './utils/logger';
 const app = express();
 
 // Middleware
-// Cors para prevenir accesos no autorizados y permite solicitudes desde el frontend
 app.use(cors());
-// Helmet ayuda a proteger la app de ataques (XXS, clickjacking, etc)
 app.use(helmet());
-// Express.json para parsear el body de las peticiones
 app.use(express.json());
-// Morgan para ver las peticiones http en la consola
 app.use(morgan('combined', { stream: { write: (message) => logger.info(message.trim()) } }));
 
 // Routes
