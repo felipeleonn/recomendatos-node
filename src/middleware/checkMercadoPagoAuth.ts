@@ -3,6 +3,7 @@ import { supabase } from '../services/supabaseService';
 import { refreshAccessToken } from '../services/mercadopagoService';
 import { logger } from '../utils/logger';
 
+// TODO: Hacer tabla de tokens de mercado pago en supabase
 export const checkMercadoPagoAuth = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user!.id;
