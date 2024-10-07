@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
-import { createPreference, CreatePreferencePayload, getPaymentById } from '../services/mercadopagoService';
+import { Request, Response } from 'express';
+import { createPreference, CreatePreferencePayload } from '../services/mercadopagoService';
 import { logger } from '../utils/logger';
 
 export const createPaymentPreference = async (req: Request, res: Response) => {
@@ -16,13 +16,12 @@ export const createPaymentPreference = async (req: Request, res: Response) => {
   }
 };
 
-export const getPayment = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { id } = req.params;
-    const payment = await getPaymentById(id);
-    res.json(payment);
-  } catch (error) {
-    logger.error('Error fetching MercadoPago payment:', error);
-    res.status(500).json({ error: 'Error fetching MercadoPago payment' });
-  }
-};
+// export const getPayment = async (req: Request, res: Response, next: NextFunction) => {
+//   try {
+//     const { id } = req.params;
+//     const payment = await mercadoPagoService.getPaymentById(id);
+//     res.json(payment);
+//   } catch (error) {
+//     next(error);
+//   }
+// };
