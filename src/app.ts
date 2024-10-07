@@ -6,7 +6,7 @@ import morgan from 'morgan';
 import { errorHandler } from './middleware/errorHandler';
 import { notFoundHandler } from './middleware/notFoundHandler';
 import { logger } from './utils/logger';
-import { paymentRoutes } from './routes/paymentroutes';
+import { paymentRoutes } from './routes/paymentRoutes';
 
 const app = express();
 
