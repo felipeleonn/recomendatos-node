@@ -6,6 +6,7 @@ import morgan from 'morgan';
 import { errorHandler } from './middleware/errorHandler';
 import { notFoundHandler } from './middleware/notFoundHandler';
 import { logger } from './utils/logger';
+import { paymentRoutes } from './routes/paymentroutes';
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use(morgan('combined', { stream: { write: (message) => logger.info(message.t
 
 // Routes
 app.use('/api/mercadopago', mercadopagoRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // Error handling
 app.use(notFoundHandler);

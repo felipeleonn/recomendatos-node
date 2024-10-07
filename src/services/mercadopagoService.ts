@@ -1,9 +1,6 @@
 import { MercadoPagoConfig, Payment, Preference } from 'mercadopago';
 import axios from 'axios';
-import dotenv from 'dotenv';
 import { BACKEND_URL, MERCADOPAGO_ACCESS_TOKEN, MERCADOPAGO_CLIENT_ID, MERCADOPAGO_CLIENT_SECRET, MERCADOPAGO_REDIRECT_URI } from '../config/config';
-
-dotenv.config();
 
 const mercadopagoClient = new MercadoPagoConfig({
   accessToken: MERCADOPAGO_ACCESS_TOKEN!,
@@ -21,6 +18,8 @@ export interface CreatePreferencePayload {
   orderId: string; 
 }
 
+// https://www.mercadopago.com.ar/developers/es/docs/split-payments/integration-configuration/create-configuration
+// https://auth.mercadopago.com.ar/authorization?client_id=<APP_ID>&response_type=code&platform_id=mp&redirect_uri=<REDIRECT_URI>
 export const generateAuthorizationURL = () => {
   const baseUrl = 'https://auth.mercadopago.com.ar/authorization';
   const params = new URLSearchParams({
@@ -32,6 +31,7 @@ export const generateAuthorizationURL = () => {
   return `${baseUrl}?${params.toString()}`;
 };
 
+// https://www.mercadopago.com.ar/developers/es/reference/oauth/_oauth_token/post
 export const exchangeCodeForToken = async (code: string) => {
   try {
     const response = await axios.post('https://api.mercadopago.com/oauth/token', {
@@ -47,6 +47,19 @@ export const exchangeCodeForToken = async (code: string) => {
     throw error;
   }
 };
+/* 
+respuesta ejemplo de exchangeCodeForToken
+{
+  "access_token": "APP_USR-4934588586838432-XXXXXXXX-241983636",
+  "token_type": "bearer",
+  "expires_in": 15552000,
+  "scope": "read write offline_access",
+  "user_id": 241983636,
+  "refresh_token": "TG-XXXXXXXX-241983636",
+  "public_key": "APP_USR-d0a26210-XXXXXXXX-479f0400869e",
+  "live_mode": true
+} 
+*/
 
 export const refreshAccessToken = async (refreshToken: string) => {
   try {
@@ -62,6 +75,8 @@ export const refreshAccessToken = async (refreshToken: string) => {
     throw error;
   }
 };
+
+// TODO: evaluar a donde redirigir con back_urls al usuario
 export const createPreference = async (payload: CreatePreferencePayload, accessToken: string) => {
   try {
     const preference = new Preference(mercadopagoClient);
@@ -73,13 +88,14 @@ export const createPreference = async (payload: CreatePreferencePayload, accessT
         })),
         payer: payload.payer,
         back_urls: {
-          success: `${BACKEND_URL}/api/v1/payments/success`,
-          failure: `${BACKEND_URL}/api/v1/payments/failure`,
-          pending: `${BACKEND_URL}/api/v1/payments/pending`,
+          success: `${BACKEND_URL}/api/payments/success`,
+          failure: `${BACKEND_URL}/api/payments/failure`,
+          pending: `${BACKEND_URL}/api/payments/pending`,
         },
         auto_return: 'approved',
         external_reference: payload.orderId,
-        notification_url: `${process.env.BACKEND_URL}/api/mercadopago/webhook`,
+        //! notification_url to handle backend notificacion about payment status change real-time
+        // notification_url: `${process.env.BACKEND_URL}/api/mercadopago/webhook`,
       },
     });
     return result;
