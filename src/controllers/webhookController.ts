@@ -2,9 +2,10 @@ import { Request, Response } from 'express';
 import { Payment, MercadoPagoConfig } from 'mercadopago';
 import { logger } from '../utils/logger';
 import { updateOrderStatus } from '../services/orderService';
+import { MERCADOPAGO_ACCESS_TOKEN } from '../config/config';
 
 
-const client = new MercadoPagoConfig({ accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN! });
+const client = new MercadoPagoConfig({ accessToken: MERCADOPAGO_ACCESS_TOKEN! });
 
 export const handleWebhook = async (req: Request, res: Response) => {
   try {

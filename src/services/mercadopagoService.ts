@@ -1,14 +1,12 @@
 import { MercadoPagoConfig, Payment, Preference } from 'mercadopago';
 import axios from 'axios';
 import dotenv from 'dotenv';
+import { BACKEND_URL, MERCADOPAGO_ACCESS_TOKEN, MERCADOPAGO_CLIENT_ID, MERCADOPAGO_CLIENT_SECRET, MERCADOPAGO_REDIRECT_URI } from '../config/config';
 
 dotenv.config();
 
-const CLIENT_ID = process.env.MERCADOPAGO_CLIENT_ID!;
-const CLIENT_SECRET = process.env.MERCADOPAGO_CLIENT_SECRET!;
-const REDIRECT_URI = process.env.MERCADOPAGO_REDIRECT_URI!;
 const mercadopagoClient = new MercadoPagoConfig({
-  accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
+  accessToken: MERCADOPAGO_ACCESS_TOKEN!,
 });
 
 export interface CreatePreferencePayload {
@@ -26,10 +24,10 @@ export interface CreatePreferencePayload {
 export const generateAuthorizationURL = () => {
   const baseUrl = 'https://auth.mercadopago.com.ar/authorization';
   const params = new URLSearchParams({
-    client_id: CLIENT_ID, // TODO: Mover esto a una variable de entorno
+    client_id: MERCADOPAGO_CLIENT_ID, 
     response_type: 'code',
     platform_id: 'mp',
-    redirect_uri: REDIRECT_URI, // TODO: Mover esto a una variable de entorno
+    redirect_uri: MERCADOPAGO_REDIRECT_URI, 
   });
   return `${baseUrl}?${params.toString()}`;
 };
@@ -37,11 +35,11 @@ export const generateAuthorizationURL = () => {
 export const exchangeCodeForToken = async (code: string) => {
   try {
     const response = await axios.post('https://api.mercadopago.com/oauth/token', {
-      client_secret: CLIENT_SECRET, // TODO: Mover esto a una variable de entorno
-      client_id: CLIENT_ID, // TODO: Mover esto a una variable de entorno
+      client_secret: MERCADOPAGO_CLIENT_SECRET, 
+      client_id: MERCADOPAGO_CLIENT_ID, 
       grant_type: 'authorization_code',
       code: code,
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: MERCADOPAGO_REDIRECT_URI,
     });
     return response.data;
   } catch (error) {
@@ -53,8 +51,8 @@ export const exchangeCodeForToken = async (code: string) => {
 export const refreshAccessToken = async (refreshToken: string) => {
   try {
     const response = await axios.post('https://api.mercadopago.com/oauth/token', {
-      client_secret: CLIENT_SECRET, // TODO: Mover esto a una variable de entorno
-      client_id: CLIENT_ID, // TODO: Mover esto a una variable de entorno
+      client_secret: MERCADOPAGO_CLIENT_SECRET,
+      client_id: MERCADOPAGO_CLIENT_ID,
       grant_type: 'refresh_token',
       refresh_token: refreshToken,
     });
@@ -66,8 +64,7 @@ export const refreshAccessToken = async (refreshToken: string) => {
 };
 export const createPreference = async (payload: CreatePreferencePayload, accessToken: string) => {
   try {
-    const client = new MercadoPagoConfig({ accessToken });
-    const preference = new Preference(client);
+    const preference = new Preference(mercadopagoClient);
     const result = await preference.create({
       body: {
         items: payload.items.map((item, index) => ({
@@ -76,9 +73,9 @@ export const createPreference = async (payload: CreatePreferencePayload, accessT
         })),
         payer: payload.payer,
         back_urls: {
-          success: `${process.env.FRONTEND_URL}/success`,
-          failure: `${process.env.FRONTEND_URL}/failure`,
-          pending: `${process.env.FRONTEND_URL}/pending`,
+          success: `${BACKEND_URL}/api/v1/payments/success`,
+          failure: `${BACKEND_URL}/api/v1/payments/failure`,
+          pending: `${BACKEND_URL}/api/v1/payments/pending`,
         },
         auto_return: 'approved',
         external_reference: payload.orderId,
