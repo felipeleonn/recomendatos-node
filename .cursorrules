@@ -58,15 +58,15 @@ Error Handling
 	•	Use custom error classes to differentiate between client and server errors.
 	•	Log errors using Winston or Bunyan for effective debugging.
 
-MercadoPago Integration (Checkout Pro)
+MercadoPago Integration (Checkout Pro & Split Payments)
 
-	•	Use the official MercadoPago SDK for Node.js: https://github.com/mercadopago/sdk-nodejs
+	•	Use the official MercadoPago SDK for Node.js: https://github.com/mercadopago/sdk-nodejs.
 	•	Set up a MercadoPago sandbox environment for testing integrations.
 	•	Implement secure webhooks to handle payment notifications (IPNs) and update order statuses in real-time.
-	•	Use MercadoPago’s pre-approval and payment preferences for creating payments.
+	•	Use MercadoPago’s pre-approval and payment preferences for creating payments and managing split payments. https://www.mercadopago.com.ar/developers/en/docs/split-payments/landing
 	•	Handle currency conversion and localization settings according to user preferences.
 	•	Implement error handling and retry logic for payment-related issues.
-	•	Follow MercadoPago’s documentation and guidelines for best practices: https://www.mercadopago.com.ar/developers/en/docs
+	•	Follow MercadoPago’s documentation and guidelines for best practices: https://www.mercadopago.com.ar/developers/en/docs.
 
 Security
 
