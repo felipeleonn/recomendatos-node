@@ -9,7 +9,9 @@ import { supabase } from '../services/supabaseService';
 // };
 
 export const initiateAuthorization = (req: Request, res: Response) => {
+  logger.info('Initiating authorization');
   const authUrl = generateAuthorizationURL();
+  logger.info(`Generated auth URL: ${authUrl}`);
   res.redirect(authUrl);
 };
 
