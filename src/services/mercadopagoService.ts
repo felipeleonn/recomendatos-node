@@ -1,6 +1,12 @@
 import { MercadoPagoConfig, Payment, Preference } from 'mercadopago';
 import axios from 'axios';
-import { BACKEND_URL, MERCADOPAGO_ACCESS_TOKEN, MERCADOPAGO_CLIENT_ID, MERCADOPAGO_CLIENT_SECRET, MERCADOPAGO_REDIRECT_URI } from '../config/config';
+import {
+  BACKEND_URL,
+  MERCADOPAGO_ACCESS_TOKEN,
+  MERCADOPAGO_CLIENT_ID,
+  MERCADOPAGO_CLIENT_SECRET,
+  MERCADOPAGO_REDIRECT_URI,
+} from '../config/config';
 
 const mercadopagoClient = new MercadoPagoConfig({
   accessToken: MERCADOPAGO_ACCESS_TOKEN!,
@@ -15,18 +21,19 @@ export interface CreatePreferencePayload {
   payer: {
     email: string;
   };
-  orderId: string; 
+  orderId: string;
 }
 
 // https://www.mercadopago.com.ar/developers/es/docs/split-payments/integration-configuration/create-configuration
-// https://auth.mercadopago.com.ar/authorization?client_id=<APP_ID>&response_type=code&platform_id=mp&redirect_uri=<REDIRECT_URI>
-export const generateAuthorizationURL = () => {
+// https://auth.mercadopago.com.ar/authorization?client_id=<APP_ID>&response_type=code&platform_id=mp&redirect_uri=<REDIRECT_URI>&clerkId=<CLERK_ID>
+export const generateAuthorizationURL = (clerkId: string) => {
   const baseUrl = 'https://auth.mercadopago.com.ar/authorization';
   const params = new URLSearchParams({
-    client_id: MERCADOPAGO_CLIENT_ID, 
+    client_id: MERCADOPAGO_CLIENT_ID,
     response_type: 'code',
     platform_id: 'mp',
-    redirect_uri: MERCADOPAGO_REDIRECT_URI, 
+    redirect_uri: MERCADOPAGO_REDIRECT_URI,
+    state: clerkId,
   });
   return `${baseUrl}?${params.toString()}`;
 };
@@ -35,8 +42,8 @@ export const generateAuthorizationURL = () => {
 export const exchangeCodeForToken = async (code: string) => {
   try {
     const response = await axios.post('https://api.mercadopago.com/oauth/token', {
-      client_secret: MERCADOPAGO_CLIENT_SECRET, 
-      client_id: MERCADOPAGO_CLIENT_ID, 
+      client_secret: MERCADOPAGO_CLIENT_SECRET,
+      client_id: MERCADOPAGO_CLIENT_ID,
       grant_type: 'authorization_code',
       code: code,
       redirect_uri: MERCADOPAGO_REDIRECT_URI,
@@ -84,7 +91,7 @@ export const createPreference = async (payload: CreatePreferencePayload, accessT
       body: {
         items: payload.items.map((item, index) => ({
           id: `item-${index}`,
-          ...item
+          ...item,
         })),
         payer: payload.payer,
         back_urls: {
@@ -115,4 +122,3 @@ export const getPaymentById = async (paymentId: string) => {
     throw error;
   }
 };
-

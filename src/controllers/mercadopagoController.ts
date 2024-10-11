@@ -1,5 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import { createPreference, CreatePreferencePayload, exchangeCodeForToken, generateAuthorizationURL, getPaymentById } from '../services/mercadopagoService';
+import {
+  createPreference,
+  CreatePreferencePayload,
+  exchangeCodeForToken,
+  generateAuthorizationURL,
+  getPaymentById,
+} from '../services/mercadopagoService';
 import { logger } from '../utils/logger';
 import { supabase } from '../services/supabaseService';
 
@@ -9,8 +15,15 @@ import { supabase } from '../services/supabaseService';
 // };
 
 export const initiateAuthorization = (req: Request, res: Response) => {
+  // recibo de los params un clerkId
+  const { clerkId } = req.query;
+
+  if (clerkId || typeof clerkId !== 'string' || clerkId.length === 0) {
+    return res.status(400).json({ error: 'Invalid clerkId' });
+  }
+
   logger.info('Initiating authorization');
-  const authUrl = generateAuthorizationURL();
+  const authUrl = generateAuthorizationURL(clerkId);
   logger.info(`Generated auth URL: ${authUrl}`);
   res.redirect(authUrl);
 };
@@ -18,27 +31,32 @@ export const initiateAuthorization = (req: Request, res: Response) => {
 // TODO: Hacer en supabase una tabla de tokens de mercado pago
 export const handleOAuthCallback = async (req: Request, res: Response) => {
   try {
-    const { code } = req.query;
+    // state es clerkId
+    const { code, state } = req.query;
     if (typeof code !== 'string') {
       throw new Error('Invalid authorization code');
     }
     const tokenData = await exchangeCodeForToken(code);
-    
-    const { data, error } = await supabase
-      .from('mercadopago_tokens')
-      .upsert({
-        clerk_id: req.user!.id,
-        access_token: tokenData.access_token,
-        refresh_token: tokenData.refresh_token,
-        expires_in: tokenData.expires_in,
-        created_at: new Date().toISOString(),
-      });
+
+    // convertimos el tiempo de expiracion de milisegundos a una fecha
+    const expiresIn = new Date(new Date().getTime() + tokenData.expires_in * 1000).toISOString();
+
+    const { data, error } = await supabase.from('mercadopago_tokens').upsert({
+      client_id: req.user!.id,
+      clerk_id: state,
+      access_token: tokenData.access_token,
+      refresh_token: tokenData.refresh_token,
+      expires_in: expiresIn,
+      created_at: new Date().toISOString(),
+    });
 
     if (error) {
       throw error;
     }
 
-    res.json({ message: 'Authorization successful' });
+    res.json({ message: 'Authorization successful', data });
+    // redirect a la app con el clerkId
+    // pensamos a que pantalla enviarlo y lo redirigimos al perfil por ejemplo o a una pantalla succes de la app
   } catch (error) {
     logger.error('Error handling OAuth callback:', error);
     res.status(500).json({ error: 'Error processing authorization' });
@@ -69,8 +87,3 @@ export const getPayment = async (req: Request, res: Response, next: NextFunction
     res.status(500).json({ error: 'Error fetching MercadoPago payment' });
   }
 };
-
-
-
-
-
