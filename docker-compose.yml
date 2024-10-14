@@ -14,5 +14,3 @@ services:
       - MERCADOPAGO_REDIRECT_URI=${MERCADOPAGO_REDIRECT_URI}
     volumes:
       - .:/usr/src/app
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
