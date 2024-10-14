@@ -35,7 +35,7 @@ export const handleOAuthCallback = async (req: Request, res: Response) => {
     const expiresIn = new Date(new Date().getTime() + tokenData.expires_in * 1000).toISOString();
 
     const { data, error } = await supabase.from('mercadopago_tokens').upsert({
-      client_id: req.user!.id,
+      client_id: tokenData.user_id,
       clerk_id: state,
       access_token: tokenData.access_token,
       refresh_token: tokenData.refresh_token,
