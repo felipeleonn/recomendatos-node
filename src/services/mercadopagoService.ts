@@ -41,6 +41,8 @@ export const generateAuthorizationURL = (clerkId: string) => {
 // https://www.mercadopago.com.ar/developers/es/reference/oauth/_oauth_token/post
 //TODO: no olvidarnos de poner el redirect_uri en la config de mercado pago
 export const exchangeCodeForToken = async (code: string) => {
+
+  // ejemplo de authorization_code  
   try {
     const response = await axios.post('https://api.mercadopago.com/oauth/token', {
       client_secret: MERCADOPAGO_CLIENT_SECRET,
@@ -86,6 +88,7 @@ export const refreshAccessToken = async (refreshToken: string) => {
 
 // TODO: evaluar a donde redirigir con back_urls al usuario
 export const createPreference = async (payload: CreatePreferencePayload, accessToken: string) => {
+  // TODO: sumarle el 1.5% de comision a cada pago
   try {
     const preference = new Preference(mercadopagoClient);
     const result = await preference.create({

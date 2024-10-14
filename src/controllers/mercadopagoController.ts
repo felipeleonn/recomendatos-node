@@ -14,9 +14,10 @@ export const initiateAuthorization = (req: Request, res: Response) => {
   const { clerkId } = req.params;
 
   // TODO: hacer bien el tipado de clerkId
-  // if (clerkId || typeof clerkId !== 'string' || clerkId.length === 0) {
-  //   return res.status(400).json({ error: 'Invalid clerkId' });
-  // }
+  if (clerkId || typeof clerkId !== 'string') {
+    return res.status(400).json({ error: 'Invalid clerkId' });
+  }
+  logger.info('Initiating authorization for clerkId:', clerkId);
   const authUrl = generateAuthorizationURL(clerkId);
   res.redirect(authUrl);
 };
@@ -25,6 +26,8 @@ export const handleOAuthCallback = async (req: Request, res: Response) => {
   try {
     // state es clerkId
     const { code, state } = req.query;
+    // code es el codigo de autorizacion que nos manda mercado pago
+    // ejemplo de code
     if (typeof code !== 'string') {
       throw new Error('Invalid authorization code');
     }
@@ -60,6 +63,7 @@ export const handleOAuthCallback = async (req: Request, res: Response) => {
 };
 
 export const createPaymentPreference = async (req: Request, res: Response) => {
+  // TODO: ver como limitar solo a dinero en cuenta y no a tarjetas de credito
   try {
     const payload: CreatePreferencePayload = req.body;
     const preference = await createPreference(payload, req.mercadopagoToken!);
