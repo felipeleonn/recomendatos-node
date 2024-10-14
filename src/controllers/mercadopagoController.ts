@@ -21,7 +21,6 @@ export const initiateAuthorization = (req: Request, res: Response) => {
   res.redirect(authUrl);
 };
 
-// TODO: Hacer en supabase una tabla de tokens de mercado pago
 export const handleOAuthCallback = async (req: Request, res: Response) => {
   try {
     // state es clerkId
@@ -47,8 +46,7 @@ export const handleOAuthCallback = async (req: Request, res: Response) => {
       logger.error('Error inserting token into database:', error);
       throw error;
     }
-
-    res.json({ message: 'Authorization successful', data });
+    logger.info('Authorization successful', data);
     // redirect a la app con el clerkId
     // pensamos a que pantalla enviarlo y lo redirigimos al perfil por ejemplo o a una pantalla succes de la app
     res.redirect("https://app.recomendatos.com")
@@ -56,7 +54,7 @@ export const handleOAuthCallback = async (req: Request, res: Response) => {
     logger.error('Error handling OAuth callback:', error);
     res.status(500).json({ error: 'Error processing authorization' });
 
-    // TODO: Cambiar esto por un error en la app
+    // TODO: Cambiar esto por una pantalla de error en la app
     // res.redirect("https://app.recomendatos.com")
   }
 };
