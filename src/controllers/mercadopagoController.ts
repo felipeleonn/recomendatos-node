@@ -11,11 +11,12 @@ import { supabase } from '../services/supabaseService';
 
 export const initiateAuthorization = (req: Request, res: Response) => {
   // recibo de los params un clerkId
-  const { clerkId } = req.query;
+  const { clerkId } = req.params;
 
-  if (clerkId || typeof clerkId !== 'string' || clerkId.length === 0) {
-    return res.status(400).json({ error: 'Invalid clerkId' });
-  }
+  // TODO: hacer bien el tipado de clerkId
+  // if (clerkId || typeof clerkId !== 'string' || clerkId.length === 0) {
+  //   return res.status(400).json({ error: 'Invalid clerkId' });
+  // }
   const authUrl = generateAuthorizationURL(clerkId);
   res.redirect(authUrl);
 };
