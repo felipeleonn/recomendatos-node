@@ -9,11 +9,6 @@ import {
 import { logger } from '../utils/logger';
 import { supabase } from '../services/supabaseService';
 
-// export const getAuthorizationURL = (req: Request, res: Response) => {
-//   const authUrl = generateAuthorizationURL();
-//   res.json({ authorizationUrl: authUrl });
-// };
-
 export const initiateAuthorization = (req: Request, res: Response) => {
   // recibo de los params un clerkId
   const { clerkId } = req.query;
@@ -21,10 +16,7 @@ export const initiateAuthorization = (req: Request, res: Response) => {
   if (clerkId || typeof clerkId !== 'string' || clerkId.length === 0) {
     return res.status(400).json({ error: 'Invalid clerkId' });
   }
-
-  logger.info('Initiating authorization');
   const authUrl = generateAuthorizationURL(clerkId);
-  logger.info(`Generated auth URL: ${authUrl}`);
   res.redirect(authUrl);
 };
 
@@ -51,15 +43,20 @@ export const handleOAuthCallback = async (req: Request, res: Response) => {
     });
 
     if (error) {
+      logger.error('Error inserting token into database:', error);
       throw error;
     }
 
     res.json({ message: 'Authorization successful', data });
     // redirect a la app con el clerkId
     // pensamos a que pantalla enviarlo y lo redirigimos al perfil por ejemplo o a una pantalla succes de la app
+    res.redirect("https://app.recomendatos.com")
   } catch (error) {
     logger.error('Error handling OAuth callback:', error);
     res.status(500).json({ error: 'Error processing authorization' });
+
+    // TODO: Cambiar esto por un error en la app
+    // res.redirect("https://app.recomendatos.com")
   }
 };
 

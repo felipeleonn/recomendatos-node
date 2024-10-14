@@ -39,6 +39,7 @@ export const generateAuthorizationURL = (clerkId: string) => {
 };
 
 // https://www.mercadopago.com.ar/developers/es/reference/oauth/_oauth_token/post
+//TODO: no olvidarnos de poner el redirect_uri en la config de mercado pago
 export const exchangeCodeForToken = async (code: string) => {
   try {
     const response = await axios.post('https://api.mercadopago.com/oauth/token', {
