@@ -13,8 +13,7 @@ export const initiateAuthorization = (req: Request, res: Response) => {
   // recibo de los params un clerkId
   const { clerkId } = req.params;
 
-  // TODO: hacer bien el tipado de clerkId
-  if (clerkId || typeof clerkId !== 'string') {
+  if (!clerkId) {
     return res.status(400).json({ error: 'Invalid clerkId' });
   }
   logger.info('Initiating authorization for clerkId:', clerkId);
