@@ -10,7 +10,6 @@ import { logger } from '../utils/logger';
 import { supabase } from '../services/supabaseService';
 
 export const initiateAuthorization = (req: Request, res: Response) => {
-  // recibo de los params un clerkId
   const { clerkId } = req.params;
 
   if (!clerkId) {
@@ -26,7 +25,6 @@ export const handleOAuthCallback = async (req: Request, res: Response) => {
     // state es clerkId
     const { code, state } = req.query;
     // code es el codigo de autorizacion que nos manda mercado pago
-    // ejemplo de code
     if (typeof code !== 'string') {
       throw new Error('Invalid authorization code');
     }
@@ -49,31 +47,23 @@ export const handleOAuthCallback = async (req: Request, res: Response) => {
       throw error;
     }
     logger.info('Authorization successful', data);
-    // redirect a la app con el clerkId
-    // pensamos a que pantalla enviarlo y lo redirigimos al perfil por ejemplo o a una pantalla succes de la app
-    res.redirect('https://app.recomendatos.com');
+    // TODO: pantalla en la app para mostrar el resultado de la autorizacion
+    res.redirect(`https://app.recomendatos.com/redirect?authResult=approved`);
   } catch (error) {
     logger.error('Error handling OAuth callback:', error);
     res.status(500).json({ error: 'Error processing authorization' });
 
-    // TODO: Cambiar esto por una pantalla de error en la app
-    // res.redirect("https://app.recomendatos.com")
+    // TODO: pantalla en la app para mostrar el resultado de la autorizacion
+    res.redirect(`https://app.recomendatos.com/redirect?authResult=rejected`);
   }
 };
 
 export const createPaymentPreference = async (req: Request, res: Response) => {
-  // const clerkId = req.body.clerkId;
-  const body = req.body;
-
-  console.log('body', body);
-
-  // logger.info('Creating payment preference:', body);
-
   // TODO: ver como limitar solo a dinero en cuenta y no a tarjetas de credito
   try {
     const payload: CreatePreferencePayload = req.body;
 
-    const preference = await createPreference(payload, req.mercadopagoToken!);
+    const preference = await createPreference(payload);
     res.json({
       id: preference.id,
       init_point: preference.init_point, // url para que el cliente pague

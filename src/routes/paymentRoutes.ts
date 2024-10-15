@@ -1,11 +1,12 @@
 import { Router } from 'express';
-import { handlePaymentSuccess, handlePaymentFailure, handlePaymentPending } from '../controllers/paymentController';
+import { handlePaymentResult } from '../controllers/paymentController';
 
 const router = Router();
 
-// router.post('/success', handlePaymentSuccess);
-router.get('/success', handlePaymentSuccess);
-router.post('/failure', handlePaymentFailure);
-router.post('/pending', handlePaymentPending);
+// router.get('/success', handlePaymentResult);
+// router.get('/failure', handlePaymentResult);
+// router.get('/pending', handlePaymentResult);
+//  same as:
+router.get('/:status(success|failure|pending)', handlePaymentResult);
 
 export const paymentRoutes = router;

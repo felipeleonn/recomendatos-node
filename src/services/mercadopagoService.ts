@@ -86,8 +86,7 @@ export const refreshAccessToken = async (refreshToken: string) => {
   }
 };
 
-// TODO: evaluar a donde redirigir con back_urls al usuario
-export const createPreference = async (payload: CreatePreferencePayload, accessToken: string) => {
+export const createPreference = async (payload: CreatePreferencePayload) => {
   const clerkId = payload.clerkId;
 
   // TODO: sumarle el 1.5% de comision a cada pago
@@ -111,7 +110,6 @@ export const createPreference = async (payload: CreatePreferencePayload, accessT
       },
     });
 
-    console.log('result', result);
 
     if (result.api_response.status === 201) {
       const { data, error: supabaseError } = await supabase.from('payments').insert({
