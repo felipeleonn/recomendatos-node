@@ -4,6 +4,8 @@ import { logger } from '../utils/logger';
 
 // TODO: Armar tabla en supabase para las ordenes
 export const handlePaymentSuccess = async (req: Request, res: Response) => {
+  console.log('req.body', req.body);
+  console.log('req.body.external_reference', req.body.external_reference);
   try {
     const { external_reference } = req.body;
     await updateOrderStatus(external_reference, 'approved');
@@ -16,6 +18,8 @@ export const handlePaymentSuccess = async (req: Request, res: Response) => {
 };
 
 export const handlePaymentFailure = async (req: Request, res: Response) => {
+  console.log('req.body', req.body);
+  console.log('req.body.external_reference', req.body.external_reference);
   try {
     const { external_reference } = req.body;
     await updateOrderStatus(external_reference, 'rejected');
@@ -28,6 +32,8 @@ export const handlePaymentFailure = async (req: Request, res: Response) => {
 };
 
 export const handlePaymentPending = async (req: Request, res: Response) => {
+  console.log('req.body', req.body);
+  console.log('req.body.external_reference', req.body.external_reference);
   try {
     const { external_reference } = req.body;
     await updateOrderStatus(external_reference, 'pending');
