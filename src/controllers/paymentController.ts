@@ -2,13 +2,17 @@ import { Request, Response } from 'express';
 import { updateOrderStatus } from '../services/orderService';
 import { logger } from '../utils/logger';
 
-// TODO: Armar tabla en supabase para las ordenes
 export const handlePaymentSuccess = async (req: Request, res: Response) => {
-  console.log('req.body', req.body);
-  console.log('req.body.external_reference', req.body.external_reference);
+  // quiero sacar de los parametros de la url el preference_id
+
+  const { preference_id } = req.query;
+
+  if (!preference_id) {
+    return res.status(400);
+  }
+
   try {
-    const { external_reference } = req.body;
-    await updateOrderStatus(external_reference, 'approved');
+    await updateOrderStatus(preference_id.toString(), 'approved');
 
     res.status(200).json({ message: 'Payment approved and order updated.' });
   } catch (error) {

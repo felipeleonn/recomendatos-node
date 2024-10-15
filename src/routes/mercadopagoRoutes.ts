@@ -14,7 +14,8 @@ const router = Router();
 // mandamos el clerkId para crear en la db de supabase el token de mercado pago y saber a quien le pertenece (mercadopago_tokens)
 router.get('/auth/:clerkId', initiateAuthorization);
 router.get('/oauth-callback', handleOAuthCallback);
-router.post('/create-preference', checkMercadoPagoAuth, createPaymentPreference);
+router.post('/create-preference', createPaymentPreference);
+// router.post('/create-preference', checkMercadoPagoAuth, createPaymentPreference);
 router.post('/webhook', handleWebhook);
 router.get('/payment/:id', getPayment);
 

@@ -3,7 +3,8 @@ import { handlePaymentSuccess, handlePaymentFailure, handlePaymentPending } from
 
 const router = Router();
 
-router.post('/success', handlePaymentSuccess);
+// router.post('/success', handlePaymentSuccess);
+router.get('/success', handlePaymentSuccess);
 router.post('/failure', handlePaymentFailure);
 router.post('/pending', handlePaymentPending);
 

@@ -7,6 +7,9 @@ import {
   MERCADOPAGO_CLIENT_SECRET,
   MERCADOPAGO_REDIRECT_URI,
 } from '../config/config';
+import { logger } from '../utils/logger';
+import { supabase } from './supabaseService';
+import { PaymentStatus } from '../types/paymentsStatus';
 
 const mercadopagoClient = new MercadoPagoConfig({
   accessToken: MERCADOPAGO_ACCESS_TOKEN!,
@@ -18,9 +21,7 @@ export interface CreatePreferencePayload {
     unit_price: number;
     quantity: number;
   }>;
-  payer: {
-    email: string;
-  };
+  clerkId: string;
   orderId: string;
 }
 
@@ -41,8 +42,7 @@ export const generateAuthorizationURL = (clerkId: string) => {
 // https://www.mercadopago.com.ar/developers/es/reference/oauth/_oauth_token/post
 //TODO: no olvidarnos de poner el redirect_uri en la config de mercado pago
 export const exchangeCodeForToken = async (code: string) => {
-
-  // ejemplo de authorization_code  
+  // ejemplo de authorization_code
   try {
     const response = await axios.post('https://api.mercadopago.com/oauth/token', {
       client_secret: MERCADOPAGO_CLIENT_SECRET,
@@ -88,6 +88,8 @@ export const refreshAccessToken = async (refreshToken: string) => {
 
 // TODO: evaluar a donde redirigir con back_urls al usuario
 export const createPreference = async (payload: CreatePreferencePayload, accessToken: string) => {
+  const clerkId = payload.clerkId;
+
   // TODO: sumarle el 1.5% de comision a cada pago
   try {
     const preference = new Preference(mercadopagoClient);
@@ -97,7 +99,6 @@ export const createPreference = async (payload: CreatePreferencePayload, accessT
           id: `item-${index}`,
           ...item,
         })),
-        payer: payload.payer,
         back_urls: {
           success: `${BACKEND_URL}/api/payments/success`,
           failure: `${BACKEND_URL}/api/payments/failure`,
@@ -109,6 +110,29 @@ export const createPreference = async (payload: CreatePreferencePayload, accessT
         // notification_url: `${process.env.BACKEND_URL}/api/mercadopago/webhook`,
       },
     });
+
+    console.log('result', result);
+
+    if (result.api_response.status === 201) {
+      const { data, error: supabaseError } = await supabase.from('payments').insert({
+        payment_id: result.id,
+        clerk_id: clerkId,
+        status: PaymentStatus.PENDING,
+        usuario_id: null,
+        description: payload.items[0].title,
+        amount: payload.items[0].unit_price,
+        currency: 'ARS',
+        quantity: Number(payload.items[0].quantity),
+        payment_link: result.init_point,
+        //  TODO: Preguntar cuando se obtiene el transaction_number si es cuando paga o que
+        // transaction_number: ,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      });
+
+      if (supabaseError) throw supabaseError;
+    }
+
     return result;
   } catch (error) {
     console.error('Error creating MercadoPago preference:', error);

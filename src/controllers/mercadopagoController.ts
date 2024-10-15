@@ -51,7 +51,7 @@ export const handleOAuthCallback = async (req: Request, res: Response) => {
     logger.info('Authorization successful', data);
     // redirect a la app con el clerkId
     // pensamos a que pantalla enviarlo y lo redirigimos al perfil por ejemplo o a una pantalla succes de la app
-    res.redirect("https://app.recomendatos.com")
+    res.redirect('https://app.recomendatos.com');
   } catch (error) {
     logger.error('Error handling OAuth callback:', error);
     res.status(500).json({ error: 'Error processing authorization' });
@@ -62,13 +62,21 @@ export const handleOAuthCallback = async (req: Request, res: Response) => {
 };
 
 export const createPaymentPreference = async (req: Request, res: Response) => {
+  // const clerkId = req.body.clerkId;
+  const body = req.body;
+
+  console.log('body', body);
+
+  // logger.info('Creating payment preference:', body);
+
   // TODO: ver como limitar solo a dinero en cuenta y no a tarjetas de credito
   try {
     const payload: CreatePreferencePayload = req.body;
+
     const preference = await createPreference(payload, req.mercadopagoToken!);
     res.json({
       id: preference.id,
-      init_point: preference.init_point,
+      init_point: preference.init_point, // url para que el cliente pague
     });
   } catch (error) {
     logger.error('Error creating payment preference:', error);

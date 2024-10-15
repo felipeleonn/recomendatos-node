@@ -6,12 +6,16 @@ import { logger } from '../utils/logger';
 // TODO: Hacer tabla de tokens de mercado pago en supabase
 export const checkMercadoPagoAuth = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = req.user!.id;
+    const clerkId = req.body.clerkId;
+
+    if (!clerkId) {
+      return res.status(400).json({ error: 'Invalid clerkId' });
+    }
 
     const { data: tokenData, error } = await supabase
       .from('mercadopago_tokens')
       .select('*')
-      .eq('user_id', userId)
+      .eq('clerk_id', clerkId)
       .single();
 
     if (error || !tokenData) {
@@ -36,7 +40,7 @@ export const checkMercadoPagoAuth = async (req: Request, res: Response, next: Ne
           expires_in: newTokenData.expires_in,
           created_at: new Date().toISOString(),
         })
-        .eq('user_id', userId);
+        .eq('clerk_id', clerkId);
 
       if (updateError) {
         throw updateError;
