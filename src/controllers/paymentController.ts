@@ -4,9 +4,11 @@ import { logger } from '../utils/logger';
 
 export const handlePaymentResult = async (req: Request, res: Response) => {
   //  TODO: necesitamos el userId del que paga, que mp lo mande con el back URL
-  const { preference_id, status, state } = req.query;
+  const { preference_id, status, external_reference } = req.query;
 
-  const usuario_id = state;
+  logger.info(`external_reference: ${external_reference}`);
+
+  const usuario_id = external_reference;
 
   logger.info(`Handling payment result: ${usuario_id}`);
 
