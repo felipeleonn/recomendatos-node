@@ -40,7 +40,7 @@ export const generateAuthorizationURL = (clerkId: string) => {
 };
 
 // https://www.mercadopago.com.ar/developers/es/reference/oauth/_oauth_token/post
-//TODO: no olvidarnos de poner el redirect_uri en la config de mercado pago
+
 export const exchangeCodeForToken = async (code: string) => {
   // ejemplo de authorization_code
   try {
@@ -88,8 +88,7 @@ export const refreshAccessToken = async (refreshToken: string) => {
 
 export const createPreference = async (payload: CreatePreferencePayload) => {
   const clerkId = payload.clerkId;
-
-  // TODO: sumarle el 1.5% de comision a cada pago
+  // https://www.mercadopago.com.ar/developers/es/docs/checkout-bricks/wallet-brick/advanced-features/preferences
   try {
     const preference = new Preference(mercadopagoClient);
     const result = await preference.create({
@@ -98,6 +97,29 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
           id: `item-${index}`,
           ...item,
         })),
+        payment_methods: {
+          excluded_payment_methods: [
+            { id: 'visa' },
+            { id: 'master' },
+            { id: 'american_express' },
+            { id: 'tarjeta_naranja' },
+            { id: 'tarjeta_shopping' },
+          ],
+          excluded_payment_types: [
+            { id: 'credit_card' },
+            { id: 'debit_card' },
+            { id: 'prepaid_card' },
+            { id: 'rapipago' },
+            { id: 'pagofacil' },
+          ],
+        },
+        // split_rules: [
+        //   {
+        //     type: 'fee',
+        //     fee_share: 1.5,
+        //     payer: 'collector',
+        //   },
+        // ],
         back_urls: {
           success: `${BACKEND_URL}/api/payments/success`,
           failure: `${BACKEND_URL}/api/payments/failure`,
@@ -105,8 +127,10 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
         },
         auto_return: 'approved',
         external_reference: payload.orderId,
-        //! notification_url to handle backend notificacion about payment status change real-time
         // notification_url: `${process.env.BACKEND_URL}/api/mercadopago/webhook`,
+        expires: true,
+        expiration_date_from: new Date().toISOString(),
+        expiration_date_to: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       },
     });
 

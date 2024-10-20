@@ -23,7 +23,9 @@ export const handlePaymentResult = async (req: Request, res: Response) => {
       `https://app.recomendatos.com/redirect?paymentResult=${status.toString()}&usuario_id=${usuario_id}`,
     );
 
-    // TODO: pantalla en la app para mostrar el resultado del pago
+    // TODO: redireccionar en la app al USUARIO que paga pantalla valorar al proveedor si pago exitoso
+    // TODO: al PROVEEDOR si el pago es exitoso avisarle de alguna manera. Para pensar...
+
     res.redirect(
       `https://app.recomendatos.com/redirect?paymentResult=${status.toString()}&usuario_id=${usuario_id}`,
     );
