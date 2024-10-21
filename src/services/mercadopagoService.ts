@@ -113,13 +113,7 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
             { id: 'pagofacil' },
           ],
         },
-        // split_rules: [
-        //   {
-        //     type: 'fee',
-        //     fee_share: 1.5,
-        //     payer: 'collector',
-        //   },
-        // ],
+        marketplace_fee: 1.5,
         back_urls: {
           success: `${BACKEND_URL}/api/payments/success`,
           failure: `${BACKEND_URL}/api/payments/failure`,
@@ -130,7 +124,7 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
         // notification_url: `${process.env.BACKEND_URL}/api/mercadopago/webhook`,
         expires: true,
         expiration_date_from: new Date().toISOString(),
-        expiration_date_to: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        expiration_date_to: new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString(),
       },
     });
 
