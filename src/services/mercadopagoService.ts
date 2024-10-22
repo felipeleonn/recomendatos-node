@@ -136,7 +136,7 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
         quantity: Number(payload.items[0].quantity),
         payment_link: result.init_point,
         //  TODO: Transaction number es el numero de la transaccion que se obtiene cuando el pago es exitoso
-        // transaction_number: ,
+        // transaction_number: null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       });
