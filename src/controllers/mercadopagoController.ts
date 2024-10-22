@@ -4,7 +4,8 @@ import {
   CreatePreferencePayload,
   exchangeCodeForToken,
   generateAuthorizationURL,
-  getPaymentById,
+  removeMercadoPagoTokens,
+  revokeMercadoPagoTokens,
 } from '../services/mercadopagoService';
 import { logger } from '../utils/logger';
 import { supabase } from '../services/supabaseService';
@@ -73,13 +74,23 @@ export const createPaymentPreference = async (req: Request, res: Response) => {
   }
 };
 
-export const getPayment = async (req: Request, res: Response, next: NextFunction) => {
+
+export const unlinkMercadoPago = async (req: Request, res: Response) => {
+  const { clerkId } = req.body;
+
+  if (!clerkId) {
+    return res.status(400).json({ error: 'clerkId es requerido.' });
+  }
+
   try {
-    const { id } = req.params;
-    const payment = await getPaymentById(id);
-    res.json(payment);
+    // Revocar los tokens de MercadoPago
+    await revokeMercadoPagoTokens(clerkId);
+
+    // Eliminar los tokens de Supabase
+    await removeMercadoPagoTokens(clerkId);
+    res.status(200).json({ message: 'Tokens de MercadoPago desvinculados exitosamente.' });
   } catch (error) {
-    logger.error('Error fetching MercadoPago payment:', error);
-    res.status(500).json({ error: 'Error fetching MercadoPago payment' });
+    logger.error('Error al desvincular tokens de MercadoPago:', error);
+    res.status(500).json({ error: 'Error al desvincular tokens de MercadoPago.' });
   }
 };

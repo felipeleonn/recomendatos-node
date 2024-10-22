@@ -98,20 +98,14 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
           ...item,
         })),
         payment_methods: {
-          excluded_payment_methods: [
-            { id: 'visa' },
-            { id: 'master' },
-            { id: 'american_express' },
-            { id: 'tarjeta_naranja' },
-            { id: 'tarjeta_shopping' },
-          ],
           excluded_payment_types: [
             { id: 'credit_card' },
             { id: 'debit_card' },
             { id: 'prepaid_card' },
-            { id: 'rapipago' },
-            { id: 'pagofacil' },
+            { id: 'ticket' },
+            { id: 'atm' },
           ],
+          default_payment_method_id: 'account_money',
         },
         marketplace_fee: 1.5,
         back_urls: {
@@ -124,6 +118,7 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
         // notification_url: `${process.env.BACKEND_URL}/api/mercadopago/webhook`,
         expires: true,
         expiration_date_from: new Date().toISOString(),
+        // TODO: Cuantos dias le damos para pagar?
         expiration_date_to: new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString(),
       },
     });
@@ -140,7 +135,7 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
         currency: 'ARS',
         quantity: Number(payload.items[0].quantity),
         payment_link: result.init_point,
-        //  TODO: Preguntar cuando se obtiene el transaction_number si es cuando paga o que
+        //  TODO: Transaction number es el numero de la transaccion que se obtiene cuando el pago es exitoso
         // transaction_number: ,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -163,6 +158,64 @@ export const getPaymentById = async (paymentId: string) => {
     return result;
   } catch (error) {
     console.error('Error fetching MercadoPago payment:', error);
+    throw error;
+  }
+};
+
+export const revokeMercadoPagoTokens = async (clerkId: string): Promise<void> => {
+  try {
+    // Obtener los tokens desde Supabase usando el clerkId
+    const { data: tokenData, error } = await supabase
+      .from('mercadopago_tokens')
+      .select('*')
+      .eq('clerk_id', clerkId)
+      .single();
+
+    if (error || !tokenData) {
+      throw new Error('Tokens no encontrados para el clerkId proporcionado.');
+    }
+
+    const { access_token } = tokenData;
+
+    const revokeUrl = 'https://api.mercadopago.com/oauth/revoke';
+
+    // Revocar el access_token
+    await axios.post(
+      revokeUrl,
+      {
+        client_id: MERCADOPAGO_CLIENT_ID,
+        client_secret: MERCADOPAGO_CLIENT_SECRET,
+        token: access_token,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    logger.info(`Tokens revocados exitosamente para clerkId: ${clerkId}`);
+  } catch (error) {
+    logger.error(`Error al revocar tokens para clerkId ${clerkId}:`, error);
+        throw new Error('No se pudieron revocar los tokens de MercadoPago.');
+  }
+};
+
+export const removeMercadoPagoTokens = async (clerkId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('mercadopago_tokens')
+      .delete()
+      .eq('clerk_id', clerkId);
+
+    if (error) {
+      throw error;
+    }
+
+    logger.info(`Tokens de MercadoPago eliminados para clerkId: ${clerkId}`);
+    return data;
+  } catch (error) {
+    logger.error(`Error al eliminar tokens de MercadoPago para clerkId ${clerkId}:`, error);
     throw error;
   }
 };
