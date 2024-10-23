@@ -135,6 +135,7 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
         currency: 'ARS',
         quantity: Number(payload.items[0].quantity),
         payment_link: result.init_point,
+        redirect_link: `https://app.recomendatos.com/redirect?mode=makePayment&paymentId=${result.id}`,
         //  TODO: Transaction number es el numero de la transaccion que se obtiene cuando el pago es exitoso
         // transaction_number: null,
         created_at: new Date().toISOString(),
