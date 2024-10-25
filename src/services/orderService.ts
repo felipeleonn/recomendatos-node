@@ -25,7 +25,9 @@ export const updateOrderStatus = async (
       .from('payments')
       .update({ status: status })
       .eq('payment_id', preference_id)
-      .single();
+      .select();
+
+    console.log('Update order status: ', data);
 
     if (error) {
       logger.error(`Error updating order status: ${error.message}`);
@@ -37,7 +39,7 @@ export const updateOrderStatus = async (
       return null;
     }
 
-    return data;
+    return data[0];
   } catch (error) {
     logger.error(`Error updating order status: ${error}`);
     throw error;
