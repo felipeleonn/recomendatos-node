@@ -3,32 +3,26 @@ import { updateOrderStatus } from '../services/orderService';
 import { logger } from '../utils/logger';
 
 export const handlePaymentResult = async (req: Request, res: Response) => {
-  //  TODO: necesitamos el userId del que paga, que mp lo mande con el back URL
-  const { preference_id, status, external_reference } = req.query;
-
-  logger.info(`external_reference: ${external_reference}`);
-
-  const usuario_id = external_reference;
-
-  logger.info(`Handling payment result: ${usuario_id}`);
+  const { preference_id, status } = req.query;
 
   if (!preference_id || !status) {
     return res.status(400);
   }
 
   try {
-    await updateOrderStatus(preference_id.toString(), status.toString());
+    const updatedOrder = await updateOrderStatus(preference_id.toString(), status.toString());
 
-    logger.info(
-      `https://app.recomendatos.com/redirect?paymentResult=${status.toString()}&usuario_id=${usuario_id}`,
-    );
+    if (!updatedOrder) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
 
-    // TODO: redireccionar en la app al USUARIO que paga pantalla valorar al proveedor si pago exitoso
+    logger.info(`https://app.recomendatos.com/redirect?mode=valorar&id=${updatedOrder.clerk_id}`);
+
     // TODO: al PROVEEDOR si el pago es exitoso avisarle de alguna manera. Para pensar...
 
-    res.redirect(
-      `https://app.recomendatos.com/redirect?paymentResult=${status.toString()}&usuario_id=${usuario_id}`,
-    );
+    // `https://app.recomendatos.com/redirect?paymentResult=${status.toString()}&usuario_id=${usuario_id}`,
+    // res.redirect(`https://app.recomendatos.com/redirect?mode=valorar&id=${updatedOrder.clerk_id}`);
+    res.redirect(`exp://192.168.1.107:8081?mode=valorar&id=${updatedOrder.clerk_id}`);
   } catch (error) {
     logger.error('Error handling payment:', error);
     res.status(500).json({ error: 'Internal Server Error' });

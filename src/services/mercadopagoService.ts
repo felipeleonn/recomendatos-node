@@ -114,7 +114,7 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
           pending: `${BACKEND_URL}/api/payments/pending`,
         },
         auto_return: 'approved',
-        external_reference: payload.orderId,
+        // external_reference: payload.orderId,
         // notification_url: `${process.env.BACKEND_URL}/api/mercadopago/webhook`,
         expires: true,
         expiration_date_from: new Date().toISOString(),
