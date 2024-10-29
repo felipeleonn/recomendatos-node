@@ -4,7 +4,6 @@ import { logger } from '../utils/logger';
 import { updateOrderStatus } from '../services/orderService';
 import { MERCADOPAGO_ACCESS_TOKEN } from '../config/config';
 
-
 const client = new MercadoPagoConfig({ accessToken: MERCADOPAGO_ACCESS_TOKEN! });
 
 export const handleWebhook = async (req: Request, res: Response) => {
@@ -17,8 +16,10 @@ export const handleWebhook = async (req: Request, res: Response) => {
       const paymentId = data.id;
       const payment = new Payment(client);
       const result = await payment.get({ id: paymentId });
-      
+
+      logger.info('------ WEBHOOK ------');
       logger.info(`Payment ${paymentId} status: ${result.status}`);
+      logger.info('---------------');
 
       // Update order status in your database
       // TODO: Implementar en la base de datos
