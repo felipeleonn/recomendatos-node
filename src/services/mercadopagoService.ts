@@ -122,6 +122,7 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
       },
     });
 
+
     if (result.api_response.status === 201) {
       const { data, error: supabaseError } = await supabase.from('payments').insert({
         payment_id: result.id,
@@ -190,13 +191,13 @@ export const revokeMercadoPagoTokens = async (clerkId: string): Promise<void> =>
         headers: {
           'Content-Type': 'application/json',
         },
-      },
+      }
     );
 
     logger.info(`Tokens revocados exitosamente para clerkId: ${clerkId}`);
   } catch (error) {
     logger.error(`Error al revocar tokens para clerkId ${clerkId}:`, error);
-    throw new Error('No se pudieron revocar los tokens de MercadoPago.');
+        throw new Error('No se pudieron revocar los tokens de MercadoPago.');
   }
 };
 
