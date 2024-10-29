@@ -123,7 +123,6 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
       },
     });
 
-
     if (result.api_response.status === 201) {
       const { data, error: supabaseError } = await supabase.from('payments').insert({
         payment_id: result.id,
@@ -135,7 +134,7 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
         currency: 'ARS',
         quantity: Number(payload.items[0].quantity),
         payment_link: result.init_point,
-        redirect_link: `https://app.recomendatos.com/redirect?mode=makePayment&paymentId=${result.id}`,
+        redirect_link: `https://app.recomendatos.com/redirect?mode=mercadoPago&paymentId=${result.id}`,
         //  TODO: Transaction number es el numero de la transaccion que se obtiene cuando el pago es exitoso
         // transaction_number: null,
         created_at: new Date().toISOString(),
@@ -192,13 +191,13 @@ export const revokeMercadoPagoTokens = async (clerkId: string): Promise<void> =>
         headers: {
           'Content-Type': 'application/json',
         },
-      }
+      },
     );
 
     logger.info(`Tokens revocados exitosamente para clerkId: ${clerkId}`);
   } catch (error) {
     logger.error(`Error al revocar tokens para clerkId ${clerkId}:`, error);
-        throw new Error('No se pudieron revocar los tokens de MercadoPago.');
+    throw new Error('No se pudieron revocar los tokens de MercadoPago.');
   }
 };
 
