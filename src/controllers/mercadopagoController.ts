@@ -68,13 +68,13 @@ export const handleOAuthCallback = async (req: Request, res: Response) => {
 
     //   handleRedirect();
     // }, [searchParams, queryClient, router]);
-    res.redirect(`https://app.recomendatos.com/redirect?authResult=approved`);
+    res.redirect(`https://app.recomendatos.com/redirect?mode=authApproved`);
   } catch (error) {
     logger.error('Error handling OAuth callback:', error);
     res.status(500).json({ error: 'Error processing authorization' });
 
     // TODO: pantalla en la app para mostrar el resultado ERROR de la autorizacion
-    res.redirect(`https://app.recomendatos.com/redirect?authResult=rejected`);
+    res.redirect(`https://app.recomendatos.com/redirect?mode=authRejected`);
   }
 };
 
