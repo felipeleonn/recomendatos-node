@@ -19,8 +19,4 @@ router.post('/unlink', unlinkMercadoPago);
 
 export const mercadopagoRoutes = router;
 
-// TODO: Deeplink para absorver clerk id de usuario, elseif proveedor_id = usuario_id hacer algo
-// TODO: Deeplink para auth si success o error
-// TODO: Deeplink para payment si success o error
-
 // TODO: ver como avisamos al proveedor cuando el pago es exitoso / mail? telefono?

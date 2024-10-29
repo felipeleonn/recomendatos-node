@@ -118,7 +118,6 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
         // notification_url: `${process.env.BACKEND_URL}/api/mercadopago/webhook`,
         expires: true,
         expiration_date_from: new Date().toISOString(),
-        // TODO: Cuantos dias le damos para pagar?
         expiration_date_to: new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString(),
       },
     });

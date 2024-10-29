@@ -20,9 +20,7 @@ export const handlePaymentResult = async (req: Request, res: Response) => {
 
     // TODO: al PROVEEDOR si el pago es exitoso avisarle de alguna manera. Para pensar...
 
-    // `https://app.recomendatos.com/redirect?paymentResult=${status.toString()}&usuario_id=${usuario_id}`,
-    // res.redirect(`https://app.recomendatos.com/redirect?mode=valorar&id=${updatedOrder.clerk_id}`);
-    res.redirect(`exp://192.168.1.107:8081?mode=valorar&id=${updatedOrder.clerk_id}`);
+    res.redirect(`https://app.recomendatos.com/redirect?mode=valorar&id=${updatedOrder.clerk_id}`);
   } catch (error) {
     logger.error('Error handling payment:', error);
     res.status(500).json({ error: 'Internal Server Error' });

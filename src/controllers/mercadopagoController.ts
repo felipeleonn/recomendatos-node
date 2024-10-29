@@ -48,32 +48,11 @@ export const handleOAuthCallback = async (req: Request, res: Response) => {
     }
     logger.info('Authorization successful', data);
 
-    // TODO: pantalla en la app para mostrar el resultado de la autorizacion
-    // TODO: cuando hagamos el redirect por succes al auth hay que invalidar la query "hasTokenInMercadoPago"
-    // useEffect(() => {
-    //   const handleRedirect = async () => {
-    //     const { authResult } = searchParams;
-
-    //     if (authResult === "approved") {
-    //       await queryClient.invalidateQueries(["hasTokenInMercadopago", "clerkId"]);
-    //       showToast("success", "Autenticación con MercadoPago exitosa");
-    //       router.replace("/(tabs)/(perfil)/metodo-pago");
-    //     } else if (authResult === "rejected") {
-    //       showToast("error", "Autenticación con MercadoPago fallida, intente de nuevo en un rato.");
-    //       router.replace("/(tabs)/(perfil)/metodo-pago");
-    //     } else {
-    //       router.replace("/(tabs)/(perfil)/metodo-pago");
-    //     }
-    //   };
-
-    //   handleRedirect();
-    // }, [searchParams, queryClient, router]);
     res.redirect(`https://app.recomendatos.com/redirect?mode=authApproved`);
   } catch (error) {
     logger.error('Error handling OAuth callback:', error);
     res.status(500).json({ error: 'Error processing authorization' });
 
-    // TODO: pantalla en la app para mostrar el resultado ERROR de la autorizacion
     res.redirect(`https://app.recomendatos.com/redirect?mode=authRejected`);
   }
 };
@@ -92,7 +71,6 @@ export const createPaymentPreference = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Error creating payment preference' });
   }
 };
-
 
 export const unlinkMercadoPago = async (req: Request, res: Response) => {
   const { clerkId } = req.body;
