@@ -122,8 +122,9 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
       },
     });
 
-
+    let redirectLinkResult = '';
     if (result.api_response.status === 201) {
+      redirectLinkResult = `https://app.recomendatos.com/redirect?mode=mercadoPago&paymentId=${result.id}`;
       const { data, error: supabaseError } = await supabase.from('payments').insert({
         payment_id: result.id,
         clerk_id: clerkId,
@@ -134,7 +135,7 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
         currency: 'ARS',
         quantity: Number(payload.items[0].quantity),
         payment_link: result.init_point,
-        redirect_link: `https://app.recomendatos.com/redirect?mode=mercadoPago&paymentId=${result.id}`,
+        redirect_link: redirectLinkResult,
         //  TODO: Transaction number es el numero de la transaccion que se obtiene cuando el pago es exitoso
         // transaction_number: null,
         created_at: new Date().toISOString(),
@@ -144,7 +145,7 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
       if (supabaseError) throw supabaseError;
     }
 
-    return result;
+    return { result, redirectLinkResult };
   } catch (error) {
     console.error('Error creating MercadoPago preference:', error);
     throw error;

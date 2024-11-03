@@ -63,8 +63,9 @@ export const createPaymentPreference = async (req: Request, res: Response) => {
 
     const preference = await createPreference(payload);
     res.json({
-      id: preference.id,
-      init_point: preference.init_point, // url para que el cliente pague
+      id: preference.result.id,
+      init_point: preference.result.init_point,
+      redirect_link: preference.redirectLinkResult, // url deeplink para que el cliente pague
     });
   } catch (error) {
     logger.error('Error creating payment preference:', error);
