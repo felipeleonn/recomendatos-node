@@ -122,9 +122,10 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
       },
     });
 
-    let redirectLinkResult = '';
-    if (result.api_response.status === 201) {
-      redirectLinkResult = `https://app.recomendatos.com/redirect?mode=mercadoPago&paymentId=${result.id}`;
+    if (result.api_response.status !== 201) {
+      throw new Error('Error creating MercadoPago preference');
+    }
+      const redirectLinkResult = `https://app.recomendatos.com/redirect?mode=mercadoPago&paymentId=${result.id}`;
       const { data, error: supabaseError } = await supabase.from('payments').insert({
         payment_id: result.id,
         clerk_id: clerkId,
@@ -143,7 +144,6 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
       });
 
       if (supabaseError) throw supabaseError;
-    }
 
     return { result, redirectLinkResult };
   } catch (error) {
