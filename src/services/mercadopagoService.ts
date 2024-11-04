@@ -125,7 +125,7 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
     if (result.api_response.status !== 201) {
       throw new Error('Error creating MercadoPago preference');
     }
-      const redirectLinkResult = `https://app.recomendatos.com/redirect?mode=mercadoPago&paymentId=${result.id}`;
+      const redirectLinkResult = `https://app.recomendatos.com/redirect?mode=mercadoPago&id=${result.id}`;
       const { data, error: supabaseError } = await supabase.from('payments').insert({
         payment_id: result.id,
         clerk_id: clerkId,
