@@ -126,6 +126,12 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
       throw new Error('Error creating MercadoPago preference');
     }
       const redirectLinkResult = `https://app.recomendatos.com/redirect?mode=mercadoPago&paymentId=${result.id}`;
+
+      const recomendatosComission = 0.015;
+      const mercadopagoComission = 0.015;
+      const providerAmount = payload.items[0].unit_price * (1 - mercadopagoComission - recomendatosComission);
+      const recomendatosComissionAmount = payload.items[0].unit_price * recomendatosComission;
+
       const { data, error: supabaseError } = await supabase.from('payments').insert({
         payment_id: result.id,
         clerk_id: clerkId,
@@ -133,6 +139,8 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
         usuario_id: null,
         description: payload.items[0].title,
         amount: payload.items[0].unit_price,
+        provider_amount: providerAmount,
+        recomendatos_comission: recomendatosComissionAmount,
         currency: 'ARS',
         quantity: Number(payload.items[0].quantity),
         payment_link: result.init_point,

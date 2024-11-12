@@ -5,7 +5,9 @@
   "scripts": {
     "start": "node ./dist/app.js",
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "docker:dev": "ENV_FILE=.env.local docker compose up --build -d",
+    "docker:prod": "ENV_FILE=.env docker compose up --build -d"
   },
   "keywords": [],
   "author": "",

@@ -18,5 +18,3 @@ router.post('/webhook', handleWebhook);
 router.post('/unlink', unlinkMercadoPago);
 
 export const mercadopagoRoutes = router;
-
-// TODO: ver como avisamos al proveedor cuando el pago es exitoso / mail? telefono?
