@@ -107,7 +107,7 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
           ],
           default_payment_method_id: 'account_money',
         },
-        marketplace_fee: 1.5,
+        marketplace_fee: payload.items[0].unit_price * 0.015,
         back_urls: {
           success: `${BACKEND_URL}/api/payments/success`,
           failure: `${BACKEND_URL}/api/payments/failure`,
