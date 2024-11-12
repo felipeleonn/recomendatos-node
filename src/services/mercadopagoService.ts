@@ -88,6 +88,9 @@ export const refreshAccessToken = async (refreshToken: string) => {
 
 export const createPreference = async (payload: CreatePreferencePayload) => {
   const clerkId = payload.clerkId;
+
+  const recomendatosComission = 0.015;
+  const mercadopagoComission = 0.015;
   // https://www.mercadopago.com.ar/developers/es/docs/checkout-bricks/wallet-brick/advanced-features/preferences
   try {
     const preference = new Preference(mercadopagoClient);
@@ -107,7 +110,7 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
           ],
           default_payment_method_id: 'account_money',
         },
-        marketplace_fee: payload.items[0].unit_price * 0.015,
+        marketplace_fee: payload.items[0].unit_price * recomendatosComission,
         back_urls: {
           success: `${BACKEND_URL}/api/payments/success`,
           failure: `${BACKEND_URL}/api/payments/failure`,
@@ -126,9 +129,6 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
       throw new Error('Error creating MercadoPago preference');
     }
       const redirectLinkResult = `https://app.recomendatos.com/redirect?mode=mercadoPago&paymentId=${result.id}`;
-
-      const recomendatosComission = 0.015;
-      const mercadopagoComission = 0.015;
       const providerAmount = payload.items[0].unit_price * (1 - mercadopagoComission - recomendatosComission);
       const recomendatosComissionAmount = payload.items[0].unit_price * recomendatosComission;
 
