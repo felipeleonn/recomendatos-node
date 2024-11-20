@@ -117,8 +117,8 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
           pending: `${BACKEND_URL}/api/payments/pending`,
         },
         auto_return: 'approved',
-        // external_reference: payload.orderId,
         // notification_url: `${process.env.BACKEND_URL}/api/mercadopago/webhook`,
+        external_reference: payload.orderId,
         expires: true,
         expiration_date_from: new Date().toISOString(),
         expiration_date_to: new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString(),
@@ -145,6 +145,7 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
         quantity: Number(payload.items[0].quantity),
         payment_link: result.init_point,
         redirect_link: redirectLinkResult,
+        external_reference: payload.orderId,
         //  TODO: Transaction number es el numero de la transaccion que se obtiene cuando el pago es exitoso
         // transaction_number: null,
         created_at: new Date().toISOString(),
