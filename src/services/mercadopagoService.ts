@@ -88,6 +88,7 @@ export const refreshAccessToken = async (refreshToken: string) => {
 
 export const createPreference = async (payload: CreatePreferencePayload) => {
   const clerkId = payload.clerkId;
+  logger.info(`Payload: ${JSON.stringify(payload)}`);
 
   const recomendatosComission = 0.015;
   const mercadopagoComission = 0.015;
