@@ -42,7 +42,7 @@ export const generateAuthorizationURL = async (clerkId: string) => {
     clerk_id: clerkId,
     access_token: "",
     refresh_token: "",
-    expires_in: "",
+    expires_in: new Date().toISOString(),
     created_at: new Date().toISOString(),
     code_verifier: codeVerifier,
   });
