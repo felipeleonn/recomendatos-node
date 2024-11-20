@@ -1,20 +1,22 @@
 import winston from 'winston';
+import util from 'util';
 
 // Define el formato para los logs en la consola, incluyendo metadata
 const consoleFormat = winston.format.combine(
   winston.format.colorize(),
   winston.format.timestamp(),
   winston.format.printf(({ level, message, timestamp, ...meta }) => {
-    const metaString = Object.keys(meta).length ? ` | ${JSON.stringify(meta)}` : '';
+    let metaString = '';
+    if (Object.keys(meta).length) {
+      // Inspecciona el objeto meta de forma segura para evitar referencias circulares
+      metaString = ` | ${util.inspect(meta, { depth: null, colors: true })}`;
+    }
     return `${timestamp} [${level}]: ${message}${metaString}`;
   }),
 );
 
 // Define el formato para los logs en archivos (JSON)
-const fileFormat = winston.format.combine(
-  winston.format.timestamp(),
-  winston.format.json(),
-);
+const fileFormat = winston.format.combine(winston.format.timestamp(), winston.format.json());
 
 export const logger = winston.createLogger({
   level: 'info',
