@@ -10,6 +10,7 @@ import {
 import { logger } from '../utils/logger';
 import { supabase } from './supabaseService';
 import { PaymentStatus } from '../types/paymentsStatus';
+import { generateAlphanumericString } from '../utils/generateAlpanumericString';
 
 const mercadopagoClient = new MercadoPagoConfig({
   accessToken: MERCADOPAGO_ACCESS_TOKEN!,
@@ -88,11 +89,12 @@ export const refreshAccessToken = async (refreshToken: string) => {
 
 export const createPreference = async (payload: CreatePreferencePayload) => {
   const clerkId = payload.clerkId;
-  logger.info(`Payload: ${JSON.stringify(payload)}`);
 
   const recomendatosComission = 0.015;
   const mercadopagoComission = 0.015;
-  // https://www.mercadopago.com.ar/developers/es/docs/checkout-bricks/wallet-brick/advanced-features/preferences
+
+  const randomExternalReference = generateAlphanumericString(32);
+
   try {
     const preference = new Preference(mercadopagoClient);
     const result = await preference.create({
@@ -118,8 +120,8 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
           pending: `${BACKEND_URL}/api/payments/pending`,
         },
         auto_return: 'approved',
-        // notification_url: `${process.env.BACKEND_URL}/api/mercadopago/webhook`,
-        external_reference: payload.orderId,
+        notification_url: `${BACKEND_URL}/api/mercadopago/webhook`,
+        external_reference: randomExternalReference,
         expires: true,
         expiration_date_from: new Date().toISOString(),
         expiration_date_to: new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString(),
@@ -146,9 +148,7 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
         quantity: Number(payload.items[0].quantity),
         payment_link: result.init_point,
         redirect_link: redirectLinkResult,
-        external_reference: payload.orderId,
-        //  TODO: Transaction number es el numero de la transaccion que se obtiene cuando el pago es exitoso
-        // transaction_number: null,
+        external_reference: randomExternalReference,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       });
