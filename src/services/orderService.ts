@@ -27,8 +27,6 @@ export const updateOrderStatus = async (
       .eq('payment_id', preference_id)
       .select();
 
-    console.log('Update order status: ', data);
-
     if (error) {
       logger.error(`Error updating order status: ${error.message}`);
       throw error;

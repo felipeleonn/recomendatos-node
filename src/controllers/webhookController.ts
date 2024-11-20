@@ -21,16 +21,8 @@ export const handleWebhook = async (req: Request, res: Response) => {
       logger.info(`Payment ${paymentId} status: ${result.status}`);
       logger.info('---------------');
 
-      // Update order status in your database
-      // TODO: Implementar en la base de datos
-      // await updateOrderStatus(result.external_reference!, result.status!);
-
-      // Perform any additional actions based on the payment status
-      if (result.status === 'approved') {
-        // Handle approved payment
-      } else if (result.status === 'rejected') {
-        // Handle rejected payment
-      }
+      const updateOrder = await updateOrderStatus(paymentId, result.status!);
+      logger.info('Updated order in handleWebhook:', updateOrder);
     }
 
     res.sendStatus(200);
