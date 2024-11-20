@@ -85,7 +85,7 @@ export const exchangeCodeForToken = async (code: string, state: string) => {
       redirect_uri: MERCADOPAGO_REDIRECT_URI,
       code_verifier: mercadopagoTokenData?.code_verifier,
     });
-    logger.info('response exchangeCodeForToken', response);
+    logger.info('response exchangeCodeForToken', response.data);
     return response.data;
   } catch (error) {
     logger.error('Error exchanging code for token:', error);
