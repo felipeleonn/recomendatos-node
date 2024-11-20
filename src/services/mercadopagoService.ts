@@ -11,6 +11,8 @@ import { logger } from '../utils/logger';
 import { supabase } from './supabaseService';
 import { PaymentStatus } from '../types/paymentsStatus';
 import { generateAlphanumericString } from '../utils/generateAlpanumericString';
+import { generateCodeVerifier } from '../utils/pkce';
+import { generateCodeChallenge } from '../utils/pkce';
 
 const mercadopagoClient = new MercadoPagoConfig({
   accessToken: MERCADOPAGO_ACCESS_TOKEN!,
@@ -28,22 +30,52 @@ export interface CreatePreferencePayload {
 
 // https://www.mercadopago.com.ar/developers/es/docs/split-payments/integration-configuration/create-configuration
 // https://auth.mercadopago.com.ar/authorization?client_id=<APP_ID>&response_type=code&platform_id=mp&redirect_uri=<REDIRECT_URI>&clerkId=<CLERK_ID>
-export const generateAuthorizationURL = (clerkId: string) => {
+export const generateAuthorizationURL = async (clerkId: string) => {
   const baseUrl = 'https://auth.mercadopago.com.ar/authorization';
+
+  const codeVerifier = generateCodeVerifier();
+  const codeChallenge = generateCodeChallenge(codeVerifier);
+
+
+  const { error } = await supabase.from('mercadopago_tokens').upsert({
+    client_id: "",
+    clerk_id: clerkId,
+    access_token: "",
+    refresh_token: "",
+    expires_in: "",
+    created_at: new Date().toISOString(),
+    code_verifier: codeVerifier,
+  });
+
+  if (error) {
+    logger.error('Error inserting a row into mercadopago_tokens in function generateAuthorizationURL:', error);
+    throw error;
+  }
+
+
   const params = new URLSearchParams({
     client_id: MERCADOPAGO_CLIENT_ID,
     response_type: 'code',
     platform_id: 'mp',
     redirect_uri: MERCADOPAGO_REDIRECT_URI,
     state: clerkId,
+    code_challenge: codeChallenge,
+    code_challenge_method: 'S256',
   });
   return `${baseUrl}?${params.toString()}`;
 };
 
 // https://www.mercadopago.com.ar/developers/es/reference/oauth/_oauth_token/post
 
-export const exchangeCodeForToken = async (code: string) => {
-  // ejemplo de authorization_code
+export const exchangeCodeForToken = async (code: string, state: string) => {
+
+  const { data: mercadopagoTokenData, error } = await supabase.from('mercadopago_tokens').select('*').eq('clerk_id', state).single();
+
+  if (error) {
+    logger.error('Error fetching MercadoPago token data in exchangeCodeForToken:', error);
+    throw error;
+  }
+
   try {
     const response = await axios.post('https://api.mercadopago.com/oauth/token', {
       client_secret: MERCADOPAGO_CLIENT_SECRET,
@@ -51,10 +83,12 @@ export const exchangeCodeForToken = async (code: string) => {
       grant_type: 'authorization_code',
       code: code,
       redirect_uri: MERCADOPAGO_REDIRECT_URI,
+      code_verifier: mercadopagoTokenData?.code_verifier,
     });
+    logger.info('response exchangeCodeForToken', response);
     return response.data;
   } catch (error) {
-    console.error('Error exchanging code for token:', error);
+    logger.error('Error exchanging code for token:', error);
     throw error;
   }
 };
@@ -82,7 +116,7 @@ export const refreshAccessToken = async (refreshToken: string) => {
     });
     return response.data;
   } catch (error) {
-    console.error('Error refreshing access token:', error);
+    logger.error('Error refreshing access token:', error);
     throw error;
   }
 };
@@ -157,7 +191,7 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
 
     return { result, redirectLinkResult };
   } catch (error) {
-    console.error('Error creating MercadoPago preference:', error);
+    logger.error('Error creating MercadoPago preference:', error);
     throw error;
   }
 };
@@ -168,7 +202,7 @@ export const getPaymentById = async (paymentId: string) => {
     const result = await payment.get({ id: paymentId });
     return result;
   } catch (error) {
-    console.error('Error fetching MercadoPago payment:', error);
+    logger.error('Error fetching MercadoPago payment:', error);
     throw error;
   }
 };

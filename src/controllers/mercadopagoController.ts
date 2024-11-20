@@ -10,13 +10,13 @@ import {
 import { logger } from '../utils/logger';
 import { supabase } from '../services/supabaseService';
 
-export const initiateAuthorization = (req: Request, res: Response) => {
+export const initiateAuthorization = async (req: Request, res: Response) => {
   const { clerkId } = req.params;
 
   if (!clerkId) {
     return res.status(400).json({ error: 'Invalid clerkId' });
   }
-  const authUrl = generateAuthorizationURL(clerkId);
+  const authUrl = await generateAuthorizationURL(clerkId);
   res.redirect(authUrl);
 };
 
@@ -24,23 +24,25 @@ export const handleOAuthCallback = async (req: Request, res: Response) => {
   try {
     // state es clerkId
     const { code, state } = req.query;
+    logger.info('handleOAuthCallback', { code, state });
     // code es el codigo de autorizacion que nos manda mercado pago
-    if (typeof code !== 'string') {
+    if (typeof code !== 'string' || typeof state !== 'string') {
       throw new Error('Invalid authorization code');
     }
-    const tokenData = await exchangeCodeForToken(code);
+    const tokenData = await exchangeCodeForToken(code, state);
 
     // convertimos el tiempo de expiracion de milisegundos a una fecha
     const expiresIn = new Date(new Date().getTime() + tokenData.expires_in * 1000).toISOString();
 
-    const { data, error } = await supabase.from('mercadopago_tokens').upsert({
+    const { data, error } = await supabase.from('mercadopago_tokens').update({
       client_id: tokenData.user_id,
       clerk_id: state,
       access_token: tokenData.access_token,
       refresh_token: tokenData.refresh_token,
       expires_in: expiresIn,
       created_at: new Date().toISOString(),
-    });
+    }).eq('clerk_id', state).select();
+
 
     if (error) {
       logger.error('Error inserting token into database:', error);
