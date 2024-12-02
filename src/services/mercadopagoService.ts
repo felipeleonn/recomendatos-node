@@ -152,7 +152,7 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
           default_payment_method_id: 'account_money',
         },
         marketplace_fee: payload.items[0].unit_price * recomendatosComission,
-        marketplace: 'RecomenDatos',
+        marketplace: 'MP-MKT-4824894571384864',
         back_urls: {
           success: `${BACKEND_URL}/api/payments/success`,
           failure: `${BACKEND_URL}/api/payments/failure`,
