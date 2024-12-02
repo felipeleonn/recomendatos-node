@@ -36,22 +36,23 @@ export const generateAuthorizationURL = async (clerkId: string) => {
   const codeVerifier = generateCodeVerifier();
   const codeChallenge = generateCodeChallenge(codeVerifier);
 
-
   const { error } = await supabase.from('mercadopago_tokens').upsert({
-    client_id: "",
+    client_id: '',
     clerk_id: clerkId,
-    access_token: "",
-    refresh_token: "",
+    access_token: '',
+    refresh_token: '',
     expires_in: new Date().toISOString(),
     created_at: new Date().toISOString(),
     code_verifier: codeVerifier,
   });
 
   if (error) {
-    logger.error('Error inserting a row into mercadopago_tokens in function generateAuthorizationURL:', error);
+    logger.error(
+      'Error inserting a row into mercadopago_tokens in function generateAuthorizationURL:',
+      error,
+    );
     throw error;
   }
-
 
   const params = new URLSearchParams({
     client_id: MERCADOPAGO_CLIENT_ID,
@@ -68,8 +69,11 @@ export const generateAuthorizationURL = async (clerkId: string) => {
 // https://www.mercadopago.com.ar/developers/es/reference/oauth/_oauth_token/post
 
 export const exchangeCodeForToken = async (code: string, state: string) => {
-
-  const { data: mercadopagoTokenData, error } = await supabase.from('mercadopago_tokens').select('*').eq('clerk_id', state).single();
+  const { data: mercadopagoTokenData, error } = await supabase
+    .from('mercadopago_tokens')
+    .select('*')
+    .eq('clerk_id', state)
+    .single();
 
   if (error) {
     logger.error('Error fetching MercadoPago token data in exchangeCodeForToken:', error);
@@ -151,6 +155,7 @@ export const createPreference = async (payload: CreatePreferencePayload, token: 
           default_payment_method_id: 'account_money',
         },
         marketplace_fee: payload.items[0].unit_price * recomendatosComission,
+        marketplace: 'MP-MKT-4824894571384864',
         back_urls: {
           success: `${BACKEND_URL}/api/payments/success`,
           failure: `${BACKEND_URL}/api/payments/failure`,
@@ -168,29 +173,37 @@ export const createPreference = async (payload: CreatePreferencePayload, token: 
     if (result.api_response.status !== 201) {
       throw new Error('Error creating MercadoPago preference');
     }
-      const redirectLinkResult = `https://app.recomendatos.com/redirect?mode=mercadoPago&paymentId=${result.id}`;
-      const providerAmount = payload.items[0].unit_price * (1 - mercadopagoComission - recomendatosComission);
-      const recomendatosComissionAmount = payload.items[0].unit_price * recomendatosComission;
 
-      const { data, error: supabaseError } = await supabase.from('payments').insert({
-        payment_id: result.id,
-        clerk_id: clerkId,
-        status: PaymentStatus.PENDING,
-        usuario_id: null,
-        description: payload.items[0].title,
-        amount: payload.items[0].unit_price,
-        provider_amount: providerAmount,
-        recomendatos_comission: recomendatosComissionAmount,
-        currency: 'ARS',
-        quantity: Number(payload.items[0].quantity),
-        payment_link: result.init_point,
-        redirect_link: redirectLinkResult,
-        external_reference: randomExternalReference,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      });
+    logger.info('[createPreference] result:', result);
 
-      if (supabaseError) throw supabaseError;
+    const redirectLinkResult = `https://app.recomendatos.com/redirect?mode=mercadoPago&paymentId=${result.id}`;
+    const providerAmount =
+      payload.items[0].unit_price * (1 - mercadopagoComission - recomendatosComission);
+    const recomendatosComissionAmount = payload.items[0].unit_price * recomendatosComission;
+
+    logger.info('[createPreference] providerAmount:', providerAmount);
+    logger.info('[createPreference] recomendatosComissionAmount:', recomendatosComissionAmount);
+
+
+    const { data, error: supabaseError } = await supabase.from('payments').insert({
+      payment_id: result.id,
+      clerk_id: clerkId,
+      status: PaymentStatus.PENDING,
+      usuario_id: null,
+      description: payload.items[0].title,
+      amount: payload.items[0].unit_price,
+      provider_amount: providerAmount,
+      recomendatos_comission: recomendatosComissionAmount,
+      currency: 'ARS',
+      quantity: Number(payload.items[0].quantity),
+      payment_link: result.init_point,
+      redirect_link: redirectLinkResult,
+      external_reference: randomExternalReference,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
+
+    if (supabaseError) throw supabaseError;
 
     return { result, redirectLinkResult };
   } catch (error) {
@@ -239,13 +252,13 @@ export const revokeMercadoPagoTokens = async (clerkId: string): Promise<void> =>
         headers: {
           'Content-Type': 'application/json',
         },
-      }
+      },
     );
 
     logger.info(`Tokens revocados exitosamente para clerkId: ${clerkId}`);
   } catch (error) {
     logger.error(`Error al revocar tokens para clerkId ${clerkId}:`, error);
-        throw new Error('No se pudieron revocar los tokens de MercadoPago.');
+    throw new Error('No se pudieron revocar los tokens de MercadoPago.');
   }
 };
 
