@@ -62,6 +62,7 @@ export const generateAuthorizationURL = async (clerkId: string) => {
     state: clerkId,
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',
+    app_redirect: 'true',
   });
   return `${baseUrl}?${params.toString()}`;
 };
@@ -180,7 +181,6 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
 
     logger.info('[createPreference] providerAmount:', providerAmount);
     logger.info('[createPreference] recomendatosComissionAmount:', recomendatosComissionAmount);
-
 
     const { data, error: supabaseError } = await supabase.from('payments').insert({
       payment_id: result.id,
