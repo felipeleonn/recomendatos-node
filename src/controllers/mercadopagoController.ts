@@ -65,8 +65,11 @@ export const handleOAuthCallback = async (req: Request, res: Response) => {
 export const createPaymentPreference = async (req: Request, res: Response) => {
   try {
     const payload: CreatePreferencePayload = req.body;
+    const token = req.mercadopagoToken;
 
-    const preference = await createPreference(payload);
+    console.log('token proveedor client mercadopago', token)
+
+    const preference = await createPreference(payload, token!);
     res.json({
       id: preference.result.id,
       init_point: preference.result.init_point,

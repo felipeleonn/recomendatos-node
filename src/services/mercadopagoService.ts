@@ -14,7 +14,7 @@ import { generateAlphanumericString } from '../utils/generateAlpanumericString';
 import { generateCodeVerifier } from '../utils/pkce';
 import { generateCodeChallenge } from '../utils/pkce';
 
-const mercadopagoClient = new MercadoPagoConfig({
+const mercadopagoClientRecomendatos = new MercadoPagoConfig({
   accessToken: MERCADOPAGO_ACCESS_TOKEN!,
 });
 
@@ -126,16 +126,19 @@ export const refreshAccessToken = async (refreshToken: string) => {
   }
 };
 
-export const createPreference = async (payload: CreatePreferencePayload) => {
+export const createPreference = async (payload: CreatePreferencePayload, token: string) => {
   const clerkId = payload.clerkId;
+  const mercadopagoClientProveedor = new MercadoPagoConfig({
+    accessToken: token,
+  });
 
-  const recomendatosComission = 0.015;
-  const mercadopagoComission = 0.015;
+  const recomendatosComission = 0.006;
+  const mercadopagoComission = 0.024;
 
   const randomExternalReference = generateAlphanumericString(32);
 
   try {
-    const preference = new Preference(mercadopagoClient);
+    const preference = new Preference(mercadopagoClientProveedor);
     const result = await preference.create({
       body: {
         items: payload.items.map((item, index) => ({
@@ -211,7 +214,7 @@ export const createPreference = async (payload: CreatePreferencePayload) => {
 
 export const getPaymentById = async (paymentId: string) => {
   try {
-    const payment = new Payment(mercadopagoClient);
+    const payment = new Payment(mercadopagoClientRecomendatos);
     const result = await payment.get({ id: paymentId });
     return result;
   } catch (error) {
