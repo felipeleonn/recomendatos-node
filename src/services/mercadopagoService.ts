@@ -62,7 +62,6 @@ export const generateAuthorizationURL = async (clerkId: string) => {
     state: clerkId,
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',
-    app_redirect: 'true',
   });
   return `${baseUrl}?${params.toString()}`;
 };
