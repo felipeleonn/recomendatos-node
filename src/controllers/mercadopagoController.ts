@@ -73,8 +73,7 @@ export const createPaymentPreference = async (req: Request, res: Response) => {
       redirect_link: preference.redirectLinkResult, // url deeplink para que el cliente pague
     });
 
-    logger.info('preference:', preference);
-    console.log('preference:', preference);
+    logger.info('[Controller]Create payment preference:', preference);
   } catch (error) {
     logger.error('Error creating payment preference:', error);
     res.status(500).json({ error: 'Error creating payment preference' });
