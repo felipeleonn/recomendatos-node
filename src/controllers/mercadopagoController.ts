@@ -34,15 +34,18 @@ export const handleOAuthCallback = async (req: Request, res: Response) => {
     // convertimos el tiempo de expiracion de milisegundos a una fecha
     const expiresIn = new Date(new Date().getTime() + tokenData.expires_in * 1000).toISOString();
 
-    const { data, error } = await supabase.from('mercadopago_tokens').update({
-      client_id: tokenData.user_id,
-      clerk_id: state,
-      access_token: tokenData.access_token,
-      refresh_token: tokenData.refresh_token,
-      expires_in: expiresIn,
-      created_at: new Date().toISOString(),
-    }).eq('clerk_id', state).select();
-
+    const { data, error } = await supabase
+      .from('mercadopago_tokens')
+      .update({
+        client_id: tokenData.user_id,
+        clerk_id: state,
+        access_token: tokenData.access_token,
+        refresh_token: tokenData.refresh_token,
+        expires_in: expiresIn,
+        created_at: new Date().toISOString(),
+      })
+      .eq('clerk_id', state)
+      .select();
 
     if (error) {
       logger.error('Error inserting token into database:', error);
@@ -69,6 +72,9 @@ export const createPaymentPreference = async (req: Request, res: Response) => {
       init_point: preference.result.init_point,
       redirect_link: preference.redirectLinkResult, // url deeplink para que el cliente pague
     });
+
+    logger.info('preference:', preference);
+    console.log('preference:', preference);
   } catch (error) {
     logger.error('Error creating payment preference:', error);
     res.status(500).json({ error: 'Error creating payment preference' });
