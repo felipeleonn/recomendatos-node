@@ -31,8 +31,8 @@ export interface CreatePreferencePayload {
 // https://www.mercadopago.com.ar/developers/es/docs/split-payments/integration-configuration/create-configuration
 // https://auth.mercadopago.com.ar/authorization?client_id=<APP_ID>&response_type=code&platform_id=mp&redirect_uri=<REDIRECT_URI>&clerkId=<CLERK_ID>
 export const generateAuthorizationURL = async (clerkId: string) => {
-  // const baseUrl = 'https://auth.mercadopago.com.ar/authorization';
-  const baseUrl = 'mercadopago://authorization'; // Esquema de URL personalizado
+  const baseUrl = 'https://auth.mercadopago.com.ar/authorization';
+  // const baseUrl = 'mercadopago://authorization';
 
 
   const codeVerifier = generateCodeVerifier();
@@ -64,7 +64,6 @@ export const generateAuthorizationURL = async (clerkId: string) => {
     state: clerkId,
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',
-    app_redirect: 'true',
   });
   return `${baseUrl}?${params.toString()}`;
 };
