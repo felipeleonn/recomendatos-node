@@ -185,7 +185,6 @@ export const createPreference = async (payload: CreatePreferencePayload, token: 
     logger.info('[createPreference] providerAmount:', providerAmount);
     logger.info('[createPreference] recomendatosComissionAmount:', recomendatosComissionAmount);
 
-
     const { data, error: supabaseError } = await supabase.from('payments').insert({
       payment_id: result.id,
       clerk_id: clerkId,
