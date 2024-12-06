@@ -130,8 +130,8 @@ export const createPreference = async (payload: CreatePreferencePayload, token: 
     accessToken: token,
   });
 
-  const recomendatosComission = 0.006;
-  const mercadopagoComission = 0.024;
+  const recomendatosComission = 0.012;
+  const mercadopagoComission = 0.018;
 
   const randomExternalReference = generateAlphanumericString(32);
 
