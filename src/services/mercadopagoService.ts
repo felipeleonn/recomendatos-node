@@ -46,7 +46,6 @@ export const generateAuthorizationURL = async (clerkId: string) => {
         .from('mercadopago_tokens')
         .update({
           code_verifier: codeVerifier,
-          updated_at: new Date().toISOString(),
         })
         .eq('clerk_id', clerkId)
     : await supabase.from('mercadopago_tokens').insert({
