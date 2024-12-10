@@ -35,19 +35,33 @@ export const generateAuthorizationURL = async (clerkId: string) => {
   const codeVerifier = generateCodeVerifier();
   const codeChallenge = generateCodeChallenge(codeVerifier);
 
-  const { error } = await supabase.from('mercadopago_tokens').upsert({
-    client_id: '',
-    clerk_id: clerkId,
-    access_token: '',
-    refresh_token: '',
-    expires_in: new Date().toISOString(),
-    created_at: new Date().toISOString(),
-    code_verifier: codeVerifier,
-  });
+  const { data: existingRow } = await supabase
+    .from('mercadopago_tokens')
+    .select('*')
+    .eq('clerk_id', clerkId)
+    .single();
+
+  const { error } = existingRow
+    ? await supabase
+        .from('mercadopago_tokens')
+        .update({
+          code_verifier: codeVerifier,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('clerk_id', clerkId)
+    : await supabase.from('mercadopago_tokens').insert({
+        client_id: '',
+        clerk_id: clerkId,
+        access_token: '',
+        refresh_token: '',
+        expires_in: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        code_verifier: codeVerifier,
+      });
 
   if (error) {
     logger.error(
-      'Error inserting a row into mercadopago_tokens in function generateAuthorizationURL:',
+      'Error updating mercadopago_tokens in function generateAuthorizationURL:',
       error,
     );
     throw error;
